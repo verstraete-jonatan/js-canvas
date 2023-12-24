@@ -231,7 +231,7 @@ class Shape {
         this.colorMode == colorMode[2] ? this.hueScale * i.alpha : i.color;
       let thisColor = this.colorMode
         ? hsl(
-            overcount(c + this.hueRotation, this.hueScale),
+            overCount(c + this.hueRotation, this.hueScale),
             this.colorMode ? 50 : 0,
             100 - 98 * posInt(i.alpha),
             0.6

@@ -90,7 +90,7 @@ const vertices = projectSphere(); //[...constructTree(), ...projectSphere()];
 
 const edges = vertices.map((i, idx, arr) => [
   idx,
-  overcount(idx - 1, arr.length - 1),
+  overCount(idx - 1, arr.length - 1),
 ]);
 
 draw();

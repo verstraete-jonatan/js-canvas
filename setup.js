@@ -673,6 +673,29 @@ function graphXY(
   );
 }
 
+function simpleGraph(
+  arr,
+  { stroke = "green", lineWidth = 5, margin = 0 } = {}
+) {
+  const sx = Xmax / arr.length - margin;
+  const sy = Ymax / Math.max(...arr);
+
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = lineWidth;
+
+  ctx.beginPath();
+  for (let i = 0; i < arr.length; i++) {
+    let a = arr[i];
+    let b = arr[i + 1] || a;
+
+    let x = margin + i * sx;
+    let y = margin + b * sy;
+    ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.closePath();
+}
+
 function contrastImage(imageData, contrast) {
   // contrast as an integer percent
   let data = imageData.data; // original array modified, but canvas not updated
@@ -911,8 +934,7 @@ Array.prototype.remove = function (n) {
 };
 
 Array.prototype.rsplice = function (count = 1) {
-  this.splice(0, this.last(1, true) - (count - 1));
-  return this;
+  return this.splice(0, this.last(1, true) - (count - 1));
 };
 
 Array.prototype.scaleBetween = function (scaledMin, scaledMax) {
@@ -1094,7 +1116,7 @@ function parseColor(arr) {
   return "#" + res;
 }
 
-function overcount(i, max, min = 0, nullable = true) {
+function overCount(i, max, min = 0, nullable = true) {
   let stopinifnite = 0;
   while (i >= max) {
     stopinifnite++;
@@ -1170,10 +1192,19 @@ function numMax(n, max) {
 }
 
 function range(n = 1, detail = 1) {
-  // return new Array(n)
+  if (n < 0) return nRange(n);
   let res = [];
   for (let i = n < 0 ? n : 0; i < n; i += detail) {
     res.push(+i);
+  }
+  return res;
+}
+
+function nRange(n = 1) {
+  if (n > 0) return range(n);
+  let res = [];
+  for (let i = 0; i > n; i--) {
+    res.push(i);
   }
   return res;
 }
@@ -1641,6 +1672,14 @@ const incrementer = {
   },
 };
 
+const tryAndLog = (n) => {
+  try {
+    n();
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 class Vector extends Array {
   /**
    * Create Vector.
@@ -1816,6 +1855,7 @@ const Controls = {
 const Events = {
   keyEvents: new Map(),
   seperator: "$%$",
+  listener: null,
   setKey(key = "", event = () => "", type = "click") {
     this.keyEvents.set(key, event);
   },
@@ -1835,7 +1875,7 @@ const Events = {
     // this.keyEvents.forEach((v, k) => {
     //   const s = k.split(this.seperator)[0];
 
-    window.addEventListener("keydown", (ev) => {
+    this.listener = window.addEventListener("keydown", (ev) => {
       // ev.preventDefault();
       this.keyEvents.get(ev.key + this.seperator)();
     });
@@ -1846,8 +1886,8 @@ const Events = {
 window.onload = () => {
   try {
     // init events
-    if (defaultEvents) {
-      setTimeout(() => {
+    setTimeout(() => {
+      if (defaultEvents) {
         Events.setKeys([
           [" ", () => (pause = !pause)],
           ["f", () => toggleFullscreen()],
@@ -1869,18 +1909,18 @@ window.onload = () => {
         );
         Events.listen();
         setWindowLocation();
-      }, 200);
-    }
-    // window.addEventListener("keydown", (ev) => {
-    //   // ev.preventDefault();
-    //   const ek = ev.key;
-    //   Events.keyEvents.forEach((v, k) => {
-    //     const s = k.split(Events.seperator)[0];
-    //     if (ek === s) {
-    //       v();
-    //     }
-    //   });
-    // });
+      }
+      window.addEventListener("keydown", (ev) => {
+        // ev.preventDefault();
+        const ek = ev.key;
+        Events.keyEvents.forEach((v, k) => {
+          const s = k.split(Events.seperator)[0];
+          if (ek === s) {
+            v();
+          }
+        });
+      });
+    }, 200);
   } catch (e) {
     textCenter("LOAD Error: " + e.message);
     log(e);

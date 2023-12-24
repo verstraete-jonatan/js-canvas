@@ -39,7 +39,7 @@ function draw() {
     async function animate() {
       if (!mouse_down) {
         rect(0, 0, Xmax, Ymax, null, "#fff1");
-        noiseConf.zoff += 0.003;
+        noiseConf.zoff += 0.0003;
         rotateZ(0.001);
         rotateX(0.001);
       } else clear();
@@ -104,7 +104,7 @@ const vertices = projectSphere(); //[...constructTree(), ...projectSphere()];
 
 const edges = vertices.map((i, idx, arr) => [
   idx,
-  overcount(idx - 1, arr.length - 1),
+  overCount(idx - 1, arr.length - 1),
 ]);
 
 draw();

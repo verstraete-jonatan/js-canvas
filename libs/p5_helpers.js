@@ -107,7 +107,7 @@ function coords(x, y) {
   return `${x};${y}`;
 }
 
-function overcount(i, max) {
+function overCount(i, max) {
   while (i > max) {
     i -= max;
   }
@@ -566,7 +566,7 @@ function parseColor(arr) {
   return "#" + res;
 }
 
-function overcount(i, max, min = 0, nullable = true) {
+function overCount(i, max, min = 0, nullable = true) {
   while (i >= max) {
     if (nullable && i == 0) return i;
     i -= max;

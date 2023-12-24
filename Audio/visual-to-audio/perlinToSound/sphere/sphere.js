@@ -102,7 +102,7 @@ function draw() {
 const vertices = projectSphere();
 const edges = vertices.map((i, idx, arr) => [
   idx,
-  overcount(idx - 1, arr.length - 1),
+  overCount(idx - 1, arr.length - 1),
 ]);
 
 const getLister = (idx = 50) => floor(mapNum(idx, 0, 100, 0, edges.length));

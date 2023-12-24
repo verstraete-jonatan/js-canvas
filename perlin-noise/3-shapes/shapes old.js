@@ -130,7 +130,7 @@ class Sphere {
             setup.colorMode == "byDepth" ? setup.hueScale * i.alpha : i.color;
           const thisColor = setup.colorMode
             ? hsl(
-                overcount(c + setup.hueRotation, setup.hueScale),
+                overCount(c + setup.hueRotation, setup.hueScale),
                 setup.colorMode ? 50 : 0,
                 100 - 80 * posInt(i.alpha),
                 0.6
