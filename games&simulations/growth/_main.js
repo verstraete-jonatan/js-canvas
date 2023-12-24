@@ -35,11 +35,11 @@ const init = async () => {
   async function animate() {
     clear();
 
-    drawBackgroundV3();
+    // drawBackgroundV3();
 
-    // Shapes.forEach((i) => i.draw());
-    // Blocks.forEach((i) => i.draw());
-    // Items.forEach((i) => i.draw());
+    Shapes.forEach((i) => i.draw());
+    Blocks.forEach((i) => i.draw());
+    Items.forEach((i) => i.draw());
 
     Player.draw();
     Effects.forEach((i) => i.draw());
