@@ -1,6 +1,5 @@
-const getNewPosition = async (stopRecursive = 0) => {
-  if (stopRecursive === null) return null;
-  if (stopRecursive > 1000) exit();
+const getNewPosition = (stopRecursive = 0) => {
+  // if (stopRecursive > 10) exit();
   visitedPaths.add(String(current));
 
   const newPaths = getNeighbours(current).filter(isAvailable);
@@ -17,25 +16,20 @@ const getNewPosition = async (stopRecursive = 0) => {
         exit();
       }
       newCurrent = current;
-
-      // TODO: use index instead of pop
-      // TODO: check end -> isEnd(current)
       current = paths.pop();
-      await sleep(0.1);
       draw();
       log("backtrack", current, paths);
     }
     // addInbetweenPaths(current, newCurrent);
-    return getNewPosition(stopRecursive + 1);
+    // return getNewPosition(stopRecursive + 1);
   }
   requestAnimationFrame(go);
 };
 
 const go = async () => {
-  // gives all lines a bit of randomness making is sketchy & more visible.
-  const s2 = () => scale / 2 + Math.random() * 0;
   if (visitedPaths.size >= totalNrSquares * 2) {
     rect(0, 0, Xmax, Ymax, null, "#fff9");
+    const s2 = () => scale / 2 + Math.random() * 0;
     ctx.lineWidth = 5;
     ctx.strokeStyle = "red";
     ctx.beginPath();
@@ -48,7 +42,7 @@ const go = async () => {
     return log(".. mhn");
   }
 
-  if (isEnd(current)) {
+  if (String(current) === String(END)) {
     removeLoopsV2();
 
     rect(0, 0, Xmax, Ymax, null, "#fff9");

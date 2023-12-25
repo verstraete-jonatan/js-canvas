@@ -49,5 +49,3 @@ function rangeN(n = 1) {
 
   return res;
 }
-
-const isEnd = (n) => String(n) === String(END);
