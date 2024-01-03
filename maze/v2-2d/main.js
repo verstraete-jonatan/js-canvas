@@ -1,46 +1,46 @@
-const getNewPosition = async (stopRecursive = 0) => {
+const getNewPosition = (stopRecursive = 0) => {
   if (stopRecursive === null) return null;
   if (stopRecursive > 1000) exit();
-  visitedPaths.add(String(current));
 
-  const newPaths = getNeighbours(current).filter(isAvailable);
+  if (current?.neighbours?.length) {
+    const prevIdx = current.pathIndex;
 
-  if (newPaths.length) {
-    [current] = newPaths.splice(randint(newPaths.length - 1), 1);
-    newPaths.forEach(addPath);
+    [current] = current.neighbours.splice(
+      randint(current.neighbours.length - 1),
+      1
+    );
+    current.pathIndex = prevIdx + 1;
   } else {
-    // backtrack
-    let newCurrent = current;
-    while (!isAvailable(current)) {
-      if (!paths.length) {
-        console.log("FIX ME");
-        exit();
-      }
-      newCurrent = current;
+    current.neighbours = null;
 
-      // TODO: use index instead of pop
-      // TODO: check end -> isEnd(current)
-      current = paths.pop();
-      await sleep(0.1);
-      draw();
-      log("backtrack", current, paths);
+    // backtrack
+    const prevIdx = current.pathIndex;
+    current = [...gridMap.values()]
+      .reverse()
+      .find((i) => i.pathIndex > 0 && i.pathIndex < prevIdx && i.neighbours);
+    if (!current) {
+      exitting("Fuucckkk this is the end...");
     }
+    current.pathIndex = prevIdx + 1;
+
     // addInbetweenPaths(current, newCurrent);
     return getNewPosition(stopRecursive + 1);
   }
   requestAnimationFrame(go);
 };
 
+let stopIter = 0;
 const go = async () => {
-  // gives all lines a bit of randomness making is sketchy & more visible.
-  const s2 = () => scale / 2 + Math.random() * 0;
-  if (visitedPaths.size >= totalNrSquares * 2) {
+  if (++stopIter / 4 >= totalNrSquares * 2) {
+    const s2 = () => scale / 2 + Math.random() * 0;
     rect(0, 0, Xmax, Ymax, null, "#fff9");
     ctx.lineWidth = 5;
     ctx.strokeStyle = "red";
     ctx.beginPath();
     ctx.moveTo(START[0] * scale + s2(), START[1] * scale + s2());
-    for (let [x, y] of paths) {
+    for (let {
+      pos: [x, y],
+    } of gridMap.values()) {
       ctx.lineTo(x * scale + s2(), y * scale + s2());
     }
     ctx.stroke();
@@ -49,7 +49,7 @@ const go = async () => {
   }
 
   if (isEnd(current)) {
-    removeLoopsV2();
+    // removeLoopsV2();
 
     rect(0, 0, Xmax, Ymax, null, "#fff9");
     const s2 = () => scale / 2 + Math.random() * 0;
@@ -57,15 +57,16 @@ const go = async () => {
     ctx.strokeStyle = "red";
     ctx.beginPath();
     ctx.moveTo(START[0] * scale + s2(), START[1] * scale + s2());
-    for (let [x, y] of paths) {
+    for (let {
+      src: [x, y],
+    } of gridMap.values()) {
       ctx.lineTo(x * scale + s2(), y * scale + s2());
     }
     ctx.stroke();
 
     return;
   }
-  draw();
-
+  drawTile(current.pos);
   getNewPosition();
 };
 

@@ -1,7 +1,7 @@
 # Strategy
 
 - everything is divided up in tiles.
-- when moving we push the current move to our 'history'
+- when moving we push the current move to an array of visited-paths
 - movement rules:
 
   - random/seeded
@@ -14,6 +14,7 @@ when going from tile A to F, this is considered a "quest".
 on a "quest" a lot can happen: bugs, sidetracks, finish line..
 
 - Quest rules:
+
   - are recursively
   - calculated separately
   - when the quest is done we apply 'optimizations'.
@@ -25,5 +26,3 @@ on a "quest" a lot can happen: bugs, sidetracks, finish line..
   - add missing tiles:
     - eg: A->F, has a route that misses tiles: A,B,F.
       In this case we construct a missing path from B->F.
-
-NOTE:

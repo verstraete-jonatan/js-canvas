@@ -80,14 +80,18 @@ const testInBetween = async () => {
 };
 
 const testInBetweenV2 = async () => {
-  paths.length = 0;
+  // TODO: does this work
+  current = gridMap.get(asKey(5, 5));
+  current.pathIndex = 1;
+  const prev = gridMap.get(asKey(3, 8));
+  prev.pathIndex = 0;
 
-  [
-    [5, 5],
-    [3, 8],
-    // [6, 6],
-    // [4, 8],
-  ].forEach((n) => addPath(n));
+  // [
+  //   [5, 5],
+  //   [3, 8],
+  //   // [6, 6],
+  //   // [4, 8],
+  // ].forEach((n) => addPath(n));
 
   const sortItemsIndDirection3 = (a, b, c) => {
     const arr = [a, b, c];
@@ -112,11 +116,10 @@ const testInBetweenV2 = async () => {
     if (n1) {
       const [a, b] = sortItemsIndDirection2(item, n1);
 
-      addInbetweenPathsV2(a, b, i);
+      // addInbetweenPathsV2(a, b, i);
       clear();
       showGrid();
       showPath();
-      debugger;
 
       clear();
       await showGrid(true)();
@@ -149,5 +152,5 @@ const main = () => {
   showPath();
 };
 
-ctx.dark();
+// ctx.dark();
 main();
