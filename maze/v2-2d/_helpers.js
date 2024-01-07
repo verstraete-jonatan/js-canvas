@@ -5,7 +5,18 @@ const isAvailable = ({ pos: n }) =>
 
 const asKey = (x, y) => String(x + "," + y);
 
-const drawTile = ([x, y], fillStyle = "#3f32") => {
+const drawTile = ({ pos: [x, y], nrVisited = 0 }, fillStyle = "#3f32") => {
+  const s2 = scale / 2;
+  square(
+    x * scale + s2 / 2,
+    y * scale + s2 / 2,
+    scale - s2,
+    scale - s2,
+    "white",
+    "white"
+  );
+
+  fillText(nrVisited, x * scale - s2, y * scale - s2, "red");
   square(x * scale, y * scale, scale, "blue", fillStyle);
 };
 

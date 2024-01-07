@@ -1,6 +1,7 @@
 class PlayerClass extends PhysicsClass {
   constructor(x, y) {
     super();
+    this.type = "PLAYER";
     this.x = x;
     this.y = y;
 
@@ -9,6 +10,7 @@ class PlayerClass extends PhysicsClass {
     this.ghosts = [];
     this.values = {
       xp: 0,
+      life: 100,
     };
 
     this.base = {
@@ -20,25 +22,51 @@ class PlayerClass extends PhysicsClass {
     this.projectiles = [];
 
     this.amo = amoTypes.default;
+
+    this.checkHeal = 0;
   }
 
-  getPos() {
+  heal() {
+    if (this.checkHeal > 90 && this.values.life < 100) {
+      this.values.life++;
+    }
+    this.checkHeal++;
+  }
+
+  getRelPos() {
     // const [nx, ny] = getNoise(this.x, this.y);
     // const [nx, ny] = getNoise(this.base.x + this.x, this.base.y + this.y);
 
     // return [this.base.x + nx, this.base.y + ny];
 
+    return [this.base.x - this.x, this.base.y - this.y];
+  }
+
+  getPos() {
     return [this.base.x, this.base.y];
   }
 
   draw() {
     ctx.lineWidth = Styles.outerStroke;
     this.applyPhysics();
-    return;
+
     this.stats();
-    this.arrow();
     circle(...this.getPos(), this.size, "white", "#999");
+    // draw arrow
+    const [rx, ry] = this.getRotation().map((i) => i * 100);
+    const [px, py] = this.getPos();
+
+    ctx.lineWidth = 8;
+    line(px, py, px + rx, py + ry, "white");
+
+    // projectiles
     this.projectiles.forEach((i) => i.draw());
+
+    // life status
+    if (this.values.life < 100) {
+      drawProgress(px - this.size, py - this.size * 2, this.values.life);
+      this.heal();
+    }
   }
   stats() {
     font(20, "red");
@@ -56,10 +84,19 @@ class PlayerClass extends PhysicsClass {
   }
 
   shoot() {
-    this.projectiles.length < this.amo.max &&
+    if (this.projectiles.length < this.amo.max) {
       this.projectiles.push(
-        new Projectile(degRad(180) + this.angle, this.amo, this.projectiles)
+        new Projectile({
+          ...this,
+          x: this.base.x - this.x,
+          y: this.base.y - this.y,
+        })
       );
+    }
+  }
+  onBeingDamaged(amt) {
+    this.values.life -= amt;
+    this.checkHeal = 0;
   }
 
   onAction(action) {

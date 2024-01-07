@@ -1,5 +1,7 @@
 class Shape {
   constructor() {
+    this.type = "SHAPE";
+
     this.x = randint(Xmax);
     this.y = randint(Ymax);
     this.s = randint(50, 100);
@@ -18,9 +20,8 @@ class Shape {
 class Mineral extends Shape {
   constructor(material) {
     super();
-
+    this.type = "MINERAL";
     this.material = material;
-
     this.name = material.name;
     this.description = material.description;
     this.harvest_time = material.harvest_time;

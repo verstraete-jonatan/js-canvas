@@ -27,7 +27,7 @@ for (let x = 0; x <= mX; x++) {
       key,
       /** aa */
       neighbours: neighbours.length ? neighbours : null,
-      visited: 0,
+      nrVisited: 0,
     });
   }
 }

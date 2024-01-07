@@ -1,6 +1,7 @@
 const Player = new PlayerClass(Xmid, Ymid);
-// shortterm instances:
+
 const Effects = [];
+/** minerals.. substractes */
 const Shapes = [];
 const Blocks = [];
 const Items = [];
@@ -28,9 +29,12 @@ const initControls = () => {
 
 const init = async () => {
   initControls();
-  RESOURCES.minerals.forEach((i) => Shapes.push(new Mineral(i)));
-  range(50).forEach((i) => Blocks.push(new Block()));
-  Items.push(new EnemyClass());
+  // RESOURCES.minerals.forEach((i) => Shapes.push(new Mineral(i)));
+  // range(5).forEach((i) => Blocks.push(new Block()));
+  // Items.push(new StaticEnemyClass(100, 200));
+  // Items.push(new StaticEnemyClass(-100, -200));
+
+  Items.push(new TrackingEnemyClass(300, 0));
 
   async function animate() {
     clear();
@@ -60,6 +64,6 @@ window.addEventListener("keydown", (ev) => {
 });
 
 cnv.addEventListener("click", (e) => {
-  Player.angle = mouseToAngle(e);
+  Player.angle = getMouseWithEffect(e);
   Player.velocity -= 2;
 });

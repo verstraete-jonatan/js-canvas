@@ -53,32 +53,38 @@ const RESOURCES = Object.freeze({
   ],
 });
 
-const amoTypes = {
+const amoTypes = Object.freeze({
   default: {
+    name: "default",
     max: 5, // nr bullets
     speed: 0.9, // 0-1
     range: 1, // 0-1
     damage: 0.2, // any
     size: 1.2, // 0-n
+    barrelWidth: 8, // px line-width
     color: "blue", // any
   },
   bounce: {
+    name: "bounce",
     max: 4,
     size: 1,
     speed: 1,
     range: 0.9,
     damage: 0.1,
     color: "green",
+    barrelWidth: 6,
     effects: {
       bounce: true,
     },
   },
   bazooka: {
+    name: "bazooka",
     max: 1,
     size: 2.5,
     speed: 0.5,
     range: 0.8,
     damage: 1,
     color: "red",
+    barrelWidth: 20,
   },
-};
+});

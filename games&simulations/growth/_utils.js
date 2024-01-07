@@ -24,8 +24,11 @@ const getNoise = (x, y, df = 500) => {
   return rotateVector(x, y, n);
 };
 
-const getAngleTowardsPlayer = ({ x, y }) =>
-  atan2(Player.x - Player.base.x - x, Player.y - Player.base.y - y);
+const getAngleTowardsPlayer = (item) => {
+  const [px, py] = Player.getRelPos();
+  return degRad(90) - atan2(px - item.x, py - item.y);
+};
+// atan2(Player.x - Player.base.x - x, Player.y - Player.base.y - y);
 
 const getNoiseV2 = (x, y, df = 1000) => {
   const n = noise.perlin3(x / df, y / df, 0);
@@ -45,11 +48,11 @@ const renderSats = () => {
   });
 };
 
-function mouseToAngle({ clientX, clientY }) {
+function getMouseWithEffect({ clientX, clientY }) {
   const { left, top } = cnv.getBoundingClientRect();
   const x = clientX - left;
   const y = clientY - top;
-  Effects.push(new Effect(x + Xmid - Player.x, y + Ymid - Player.y));
+  Effects.push(new Effect(x - Player.x, y - Player.y));
   return Math.atan2(y - Ymid, x - Xmid);
 }
 

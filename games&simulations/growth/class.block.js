@@ -1,6 +1,7 @@
 class Block extends Shape {
   constructor() {
     super();
+    this.type = "BLOCK";
 
     this.hue = 0;
     this.life = randfloat(0.2, 1) * (this.s / 50);

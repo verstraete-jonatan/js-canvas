@@ -26,6 +26,7 @@ const getNewPosition = (stopRecursive = 0) => {
     // addInbetweenPaths(current, newCurrent);
     return getNewPosition(stopRecursive + 1);
   }
+  current.nrVisited++;
   requestAnimationFrame(go);
 };
 
@@ -51,6 +52,10 @@ const go = async () => {
   if (isEnd(current)) {
     // removeLoopsV2();
 
+    const sorted = [...gridMap.values()]
+      .filter(({ pathIndex }) => pathIndex)
+      .sort((a, b) => a.pathIndex - b.pathIndex);
+
     rect(0, 0, Xmax, Ymax, null, "#fff9");
     const s2 = () => scale / 2 + Math.random() * 0;
     ctx.lineWidth = 5;
@@ -58,15 +63,15 @@ const go = async () => {
     ctx.beginPath();
     ctx.moveTo(START[0] * scale + s2(), START[1] * scale + s2());
     for (let {
-      src: [x, y],
-    } of gridMap.values()) {
+      pos: [x, y],
+    } of sorted) {
       ctx.lineTo(x * scale + s2(), y * scale + s2());
     }
     ctx.stroke();
 
     return;
   }
-  drawTile(current.pos);
+  drawTile(current);
   getNewPosition();
 };
 

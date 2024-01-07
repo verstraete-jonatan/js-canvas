@@ -33,11 +33,8 @@ class PhysicsClass {
 
     this.angle += this.rotationVelocity;
 
-    const x = Math.cos(this.angle) * this.radius;
-    const y = Math.sin(this.angle) * this.radius;
-
-    this.x += x * this.speed * this.velocity;
-    this.y += y * this.speed * this.velocity;
+    this.x += Math.cos(this.angle) * this.radius * this.speed * this.velocity;
+    this.y += Math.sin(this.angle) * this.radius * this.speed * this.velocity;
 
     if (Math.abs(this.velocity) < 0.05) {
       this.velocity = 0;
@@ -64,11 +61,8 @@ class ProjectilePhysicsClass {
 
     this.velocity *= this.friction;
 
-    const x = Math.cos(this.angle);
-    const y = Math.sin(this.angle);
-
-    this.x += x * this.speed * this.velocity;
-    this.y += y * this.speed * this.velocity;
+    this.x += Math.cos(this.angle) * this.speed * this.velocity;
+    this.y += Math.sin(this.angle) * this.speed * this.velocity;
 
     if (Math.abs(this.velocity) < 0.1) {
       this.velocity = 0;
