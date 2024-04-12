@@ -53,22 +53,6 @@ const body = document.querySelector("body");
 let defaultEvents = true;
 
 const hexTable = Object.freeze({
-  f: 15,
-  e: 14,
-  d: 13,
-  c: 12,
-  b: 11,
-  a: 10,
-  9: 9,
-  8: 8,
-  7: 7,
-  6: 6,
-  5: 5,
-  4: 4,
-  3: 3,
-  2: 2,
-  1: 1,
-  0: 0,
   15: "f",
   14: "e",
   13: "d",
@@ -85,6 +69,22 @@ const hexTable = Object.freeze({
   2: "2",
   1: "1",
   0: "0",
+  f: 15,
+  e: 14,
+  d: 13,
+  c: 12,
+  b: 11,
+  a: 10,
+  9: 9,
+  8: 8,
+  7: 7,
+  6: 6,
+  5: 5,
+  4: 4,
+  3: 3,
+  2: 2,
+  1: 1,
+  0: 0,
 });
 
 alphabet = [
@@ -1520,7 +1520,7 @@ function sCoord(x, y) {
   return `${x};${y}`;
 }
 
-function getNieghboursByDimension(dim = 1, x, y, scale = 1) {
+function getNeighboursByDimension(dim = 1, x, y, scale = 1) {
   const res = [];
   for (let col = -dim; col <= dim; col++) {
     for (let row = -dim; row <= dim; row++) {
@@ -1638,6 +1638,15 @@ function isPointInShape(p, shape) {
   }
 
   return inside;
+}
+
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 /**
@@ -1877,7 +1886,7 @@ const Events = {
 
     this.listener = window.addEventListener("keydown", (ev) => {
       // ev.preventDefault();
-      this.keyEvents.get(ev.key + this.seperator)();
+      this.keyEvents.get(ev.key + this.seperator)?.();
     });
     // });
   },

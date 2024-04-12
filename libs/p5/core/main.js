@@ -5,10 +5,10 @@
  * @requires constants
  */
 
-import './shim';
+import "./shim.js";
 
 // Core needs the PVariables object
-import * as constants from './constants';
+import * as constants from "./constants.js";
 
 /**
  * This is the p5 instance constructor.
@@ -180,7 +180,7 @@ class p5 {
     this._initializeInstanceVariables();
     this._defaultCanvasSize = {
       width: 100,
-      height: 100
+      height: 100,
     };
     this._events = {
       // keep track of user-events for unregistering later
@@ -200,7 +200,7 @@ class p5 {
       touchmove: null,
       touchend: null,
       resize: null,
-      blur: null
+      blur: null,
     };
     this._millisStart = -1;
 
@@ -209,7 +209,7 @@ class p5 {
     this._gaussian_previous = false;
 
     this._events.wheel = null;
-    this._loadingScreenId = 'p5_loading';
+    this._loadingScreenId = "p5_loading";
 
     // Allows methods to be registered on an instance that
     // are instance-specific.
@@ -217,9 +217,8 @@ class p5 {
     const methods = Object.getOwnPropertyNames(p5.prototype._registeredMethods);
 
     for (const prop of methods) {
-      this._registeredMethods[prop] = p5.prototype._registeredMethods[
-        prop
-      ].slice();
+      this._registeredMethods[prop] =
+        p5.prototype._registeredMethods[prop].slice();
     }
 
     if (window.DeviceOrientationEvent) {
@@ -232,7 +231,7 @@ class p5 {
     this._start = () => {
       // Find node if id given
       if (this._userNode) {
-        if (typeof this._userNode === 'string') {
+        if (typeof this._userNode === "string") {
           this._userNode = document.getElementById(this._userNode);
         }
       }
@@ -244,9 +243,9 @@ class p5 {
         // Otherwise displays and removes user provided loading screen
         let loadingScreen = document.getElementById(this._loadingScreenId);
         if (!loadingScreen) {
-          loadingScreen = document.createElement('div');
-          loadingScreen.innerHTML = 'Loading...';
-          loadingScreen.style.position = 'absolute';
+          loadingScreen = document.createElement("div");
+          loadingScreen.innerHTML = "Loading...";
+          loadingScreen.style.position = "absolute";
           loadingScreen.id = this._loadingScreenId;
           const node = this._userNode || document.body;
           node.appendChild(loadingScreen);
@@ -275,7 +274,7 @@ class p5 {
       }
     };
 
-    this._runIfPreloadsAreDone = function() {
+    this._runIfPreloadsAreDone = function () {
       const context = this._isGlobal ? window : this;
       if (context._preloadCount === 0) {
         const loadingScreen = document.getElementById(context._loadingScreenId);
@@ -290,15 +289,15 @@ class p5 {
       }
     };
 
-    this._decrementPreload = function() {
+    this._decrementPreload = function () {
       const context = this._isGlobal ? window : this;
-      if (typeof context.preload === 'function') {
-        context._setProperty('_preloadCount', context._preloadCount - 1);
+      if (typeof context.preload === "function") {
+        context._setProperty("_preloadCount", context._preloadCount - 1);
         context._runIfPreloadsAreDone();
       }
     };
 
-    this._wrapPreload = function(obj, fnName) {
+    this._wrapPreload = function (obj, fnName) {
       return (...args) => {
         //increment counter
         this._incrementPreload();
@@ -307,9 +306,9 @@ class p5 {
       };
     };
 
-    this._incrementPreload = function() {
+    this._incrementPreload = function () {
       const context = this._isGlobal ? window : this;
-      context._setProperty('_preloadCount', context._preloadCount + 1);
+      context._setProperty("_preloadCount", context._preloadCount + 1);
     };
 
     this._setup = () => {
@@ -319,12 +318,12 @@ class p5 {
       this.createCanvas(
         this._defaultCanvasSize.width,
         this._defaultCanvasSize.height,
-        'p2d'
+        "p2d"
       );
 
       // return preload functions to their normal vals if switched by preload
       const context = this._isGlobal ? window : this;
-      if (typeof context.preload === 'function') {
+      if (typeof context.preload === "function") {
         for (const f in this._preloadMethods) {
           context[f] = this._preloadMethods[f][f];
           if (context[f] && this) {
@@ -338,16 +337,16 @@ class p5 {
 
       // Short-circuit on this, in case someone used the library in "global"
       // mode earlier
-      if (typeof context.setup === 'function') {
+      if (typeof context.setup === "function") {
         context.setup();
       }
 
       // unhide any hidden canvases that were created
-      const canvases = document.getElementsByTagName('canvas');
+      const canvases = document.getElementsByTagName("canvas");
 
       for (const k of canvases) {
-        if (k.dataset.hidden === 'true') {
-          k.style.visibility = '';
+        if (k.dataset.hidden === "true") {
+          k.style.visibility = "";
           delete k.dataset.hidden;
         }
       }
@@ -381,20 +380,20 @@ class p5 {
         this.redraw();
         this._frameRate = 1000.0 / (now - this._lastFrameTime);
         this.deltaTime = now - this._lastFrameTime;
-        this._setProperty('deltaTime', this.deltaTime);
+        this._setProperty("deltaTime", this.deltaTime);
         this._lastFrameTime = now;
 
         // If the user is actually using mouse module, then update
         // coordinates, otherwise skip. We can test this by simply
         // checking if any of the mouse functions are available or not.
         // NOTE : This reflects only in complete build or modular build.
-        if (typeof this._updateMouseCoords !== 'undefined') {
+        if (typeof this._updateMouseCoords !== "undefined") {
           this._updateMouseCoords();
 
           //reset delta values so they reset even if there is no mouse event to set them
           // for example if the mouse is outside the screen
-          this._setProperty('movedX', 0);
-          this._setProperty('movedY', 0);
+          this._setProperty("movedX", 0);
+          this._setProperty("movedY", 0);
         }
       }
 
@@ -468,8 +467,8 @@ class p5 {
 
         // call any registered remove functions
         const self = this;
-        this._registeredMethods.remove.forEach(f => {
-          if (typeof f !== 'undefined') {
+        this._registeredMethods.remove.forEach((f) => {
+          if (typeof f !== "undefined") {
             f.call(self);
           }
         });
@@ -497,8 +496,8 @@ class p5 {
     };
 
     // call any registered init functions
-    this._registeredMethods.init.forEach(function(f) {
-      if (typeof f !== 'undefined') {
+    this._registeredMethods.init.forEach(function (f) {
+      if (typeof f !== "undefined") {
         f.call(this);
       }
     }, this);
@@ -514,7 +513,7 @@ class p5 {
       p5.instance = this;
       // Loop through methods on the prototype and attach them to the window
       for (const p in p5.prototype) {
-        if (typeof p5.prototype[p] === 'function') {
+        if (typeof p5.prototype[p] === "function") {
           const ev = p.substring(2);
           if (!this._events.hasOwnProperty(ev)) {
             if (Math.hasOwnProperty(p) && Math[p] === p5.prototype[p]) {
@@ -557,22 +556,22 @@ class p5 {
     }
 
     const focusHandler = () => {
-      this._setProperty('focused', true);
+      this._setProperty("focused", true);
     };
     const blurHandler = () => {
-      this._setProperty('focused', false);
+      this._setProperty("focused", false);
     };
-    window.addEventListener('focus', focusHandler);
-    window.addEventListener('blur', blurHandler);
-    this.registerMethod('remove', () => {
-      window.removeEventListener('focus', focusHandler);
-      window.removeEventListener('blur', blurHandler);
+    window.addEventListener("focus", focusHandler);
+    window.addEventListener("blur", blurHandler);
+    this.registerMethod("remove", () => {
+      window.removeEventListener("focus", focusHandler);
+      window.removeEventListener("blur", blurHandler);
     });
 
-    if (document.readyState === 'complete') {
+    if (document.readyState === "complete") {
       this._start();
     } else {
-      window.addEventListener('load', this._start.bind(this), false);
+      window.addEventListener("load", this._start.bind(this), false);
     }
   }
 
@@ -581,7 +580,7 @@ class p5 {
       text: false,
       grid: false,
       textLabel: false,
-      gridLabel: false
+      gridLabel: false,
     };
 
     this._styles = [];
@@ -593,7 +592,7 @@ class p5 {
     this._colorMaxes = {
       rgb: [255, 255, 255, 255],
       hsb: [360, 100, 100, 1],
-      hsl: [360, 100, 100, 1]
+      hsl: [360, 100, 100, 1],
     };
 
     this._downKeys = {}; //Holds the key codes of currently pressed keys
@@ -627,14 +626,14 @@ class p5 {
       // albeit one that is very unlikely to be used:
       //
       //   https://developer.mozilla.org/en-US/docs/Web/API/Window/print
-      print: true
+      print: true,
     };
 
     return (prop, value) => {
       if (
         !p5.disableFriendlyErrors &&
-        typeof IS_MINIFIED === 'undefined' &&
-        typeof value === 'function' &&
+        typeof IS_MINIFIED === "undefined" &&
+        typeof value === "function" &&
         !(prop in p5.prototype._preloadMethods)
       ) {
         try {
@@ -667,12 +666,12 @@ class p5 {
                 configurable: true,
                 enumerable: true,
                 value: newValue,
-                writable: true
+                writable: true,
               });
               log(
                 `You just changed the value of "${prop}", which was a p5 function. This could cause problems later if you're not careful.`
               );
-            }
+            },
           });
         } catch (e) {
           let message = `p5 had problems creating the global function "${prop}", possibly because your code is already using that name as a variable. You may want to rename your variable to something else.`;
@@ -735,7 +734,7 @@ p5.prototype._preloadMethods = {
   loadTable: p5.prototype,
   loadFont: p5.prototype,
   loadModel: p5.prototype,
-  loadShader: p5.prototype
+  loadShader: p5.prototype,
 };
 
 p5.prototype._registeredMethods = { init: [], pre: [], post: [], remove: [] };

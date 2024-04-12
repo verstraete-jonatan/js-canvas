@@ -1,7 +1,36 @@
-const getNewPosition = (stopRecursive = 0) => {
+/**
+ * @todo
+ * been an idiot.. currently the path is stored in a map and if coming over the same tile twice, this overwrites the previous tile.
+ * This creates weird angles in the route.
+ * Solutions:
+ * - convert map to array again, and simply push to that array, but keep the map as a backbone structure to easy know which tile corresponds to which,
+ * but don't use the map for making up the route (makes sense right?).
+ * - quick fix?: when overwriting a tile, properly detect loops (an overwrite by definition means the route has a loop)
+ */
+const getPrevByIndex = (prevIdx = 0) => {
+  for (let val of getSortedPath()) {
+    if (val.neighbours && val.pathIndex > 0 && val.pathIndex < prevIdx) {
+      return val;
+    }
+  }
+};
+
+window.addEventListener("keydown", ({ key }) => {
+  if (key == "Enter") {
+    pause = false;
+  }
+});
+const getNewPosition = async (stopRecursive = 0) => {
+  clear();
+  showGrid();
+  showPath();
+  // pause = true;
+  // await pauseHalt();
+
   if (stopRecursive === null) return null;
   if (stopRecursive > 1000) exit();
 
+  // regular flow, check for available neighbours
   if (current?.neighbours?.length) {
     const prevIdx = current.pathIndex;
 
@@ -9,65 +38,41 @@ const getNewPosition = (stopRecursive = 0) => {
       randint(current.neighbours.length - 1),
       1
     );
-    current.pathIndex = prevIdx + 1;
-  } else {
-    current.neighbours = null;
 
-    // backtrack
+    // if (current.pathIndex !== null) {
+    //   clearAllPrevious(prevIdx);
+    // }
+    current.pathIndex = globalIndex++;
+  }
+  // backtrack to previous tile
+  else {
     const prevIdx = current.pathIndex;
-    current = [...gridMap.values()]
-      .reverse()
-      .find((i) => i.pathIndex > 0 && i.pathIndex < prevIdx && i.neighbours);
+    current.neighbours = null;
+    clearAllPrevious(prevIdx);
+    current = getPrevByIndex(prevIdx);
+
     if (!current) {
       exitting("Fuucckkk this is the end...");
     }
-    current.pathIndex = prevIdx + 1;
+    current.pathIndex = globalIndex++;
 
     // addInbetweenPaths(current, newCurrent);
+
     return getNewPosition(stopRecursive + 1);
   }
   current.nrVisited++;
+
   requestAnimationFrame(go);
 };
 
 let stopIter = 0;
 const go = async () => {
   if (++stopIter / 4 >= totalNrSquares * 2) {
-    const s2 = () => scale / 2 + Math.random() * 0;
-    rect(0, 0, Xmax, Ymax, null, "#fff9");
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "red";
-    ctx.beginPath();
-    ctx.moveTo(START[0] * scale + s2(), START[1] * scale + s2());
-    for (let {
-      pos: [x, y],
-    } of gridMap.values()) {
-      ctx.lineTo(x * scale + s2(), y * scale + s2());
-    }
-    ctx.stroke();
-
     return log(".. mhn");
   }
 
   if (isEnd(current)) {
-    // removeLoopsV2();
-
-    const sorted = [...gridMap.values()]
-      .filter(({ pathIndex }) => pathIndex)
-      .sort((a, b) => a.pathIndex - b.pathIndex);
-
-    rect(0, 0, Xmax, Ymax, null, "#fff9");
-    const s2 = () => scale / 2 + Math.random() * 0;
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "red";
-    ctx.beginPath();
-    ctx.moveTo(START[0] * scale + s2(), START[1] * scale + s2());
-    for (let {
-      pos: [x, y],
-    } of sorted) {
-      ctx.lineTo(x * scale + s2(), y * scale + s2());
-    }
-    ctx.stroke();
+    showPath();
 
     return;
   }
@@ -79,4 +84,4 @@ square(END[0] * scale, END[1] * scale, scale, "blue", "red");
 
 ctx.dark();
 go();
-drawPath();
+// drawPath();

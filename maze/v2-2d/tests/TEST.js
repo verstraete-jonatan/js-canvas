@@ -1,3 +1,33 @@
+const testPath_1 = [
+  // top-left -> top-right
+  [3, 2],
+  [4, 2],
+  [5, 2],
+  [6, 2],
+  [7, 2],
+  // -> bottom-right
+  [7, 3],
+  [7, 4],
+  [7, 5],
+  // -> bottom-left
+  [6, 5],
+  [5, 5],
+  [4, 5],
+  [3, 5],
+  // make loop
+  [2, 5],
+  [1, 5],
+  [1, 6],
+  [1, 7],
+  [2, 7],
+  [3, 7],
+  [3, 6],
+  [3, 5],
+  // -> top-left (start)
+  [3, 4],
+  [3, 3],
+];
+
 const testEnd = async () => {
   paths.length = 0;
 
@@ -80,56 +110,17 @@ const testInBetween = async () => {
 };
 
 const testInBetweenV2 = async () => {
-  // TODO: does this work
-  current = gridMap.get(asKey(5, 5));
+  const kA = asKey(5, 5);
+  const kB = asKey(3, 8);
+
+  current = gridMap.get(kA);
   current.pathIndex = 1;
-  const prev = gridMap.get(asKey(3, 8));
+
+  const prev = gridMap.get(kB);
   prev.pathIndex = 0;
 
-  // [
-  //   [5, 5],
-  //   [3, 8],
-  //   // [6, 6],
-  //   // [4, 8],
-  // ].forEach((n) => addPath(n));
-
-  const sortItemsIndDirection3 = (a, b, c) => {
-    const arr = [a, b, c];
-    arr.sort(([ax, ay], [bx, by]) => Math.hypot(bx, by) - Math.hypot(ax, ay));
-    console.log(arr[0], a);
-    if (arr[0] !== a) return arr;
-    return arr.reverse();
-  };
-
-  const sortItemsIndDirection2 = (a, b) => {
-    const arr = [a, b];
-    arr.sort(([ax, ay], [bx, by]) => Math.hypot(bx, by) - Math.hypot(ax, ay));
-    console.log(arr[0], a);
-    if (arr[0] !== a) return arr;
-    return arr.reverse();
-  };
-
-  for (let i = 0; i <= paths.length - 1; i++) {
-    const item = paths[i];
-    // const n2 = paths[index + 2];
-    const n1 = paths[i + 1];
-    if (n1) {
-      const [a, b] = sortItemsIndDirection2(item, n1);
-
-      // addInbetweenPathsV2(a, b, i);
-      clear();
-      showGrid();
-      showPath();
-
-      clear();
-      await showGrid(true)();
-      await sleep(0.5);
-      await pauseHalt();
-
-      // addInbetweenPathsV2(item, n1, index);
-    }
-  }
-  showPath();
+  // TODO: following should use new grid mechanism
+  addInbetweenPathsV2(current, prev, i);
 };
 
 const testInBetweenV3 = async () => {
@@ -144,13 +135,88 @@ const testInBetweenV3 = async () => {
   addInbetweenPathsV3(1, 0);
 };
 
+const testRemoveLoops_1 = async () => {
+  gridMap.forEach((k) => {
+    k.pathIndex = null;
+  });
+
+  testPath_1.forEach((n, idx) => {
+    const item = gridMap.get(asKey(...n));
+
+    if (item.pathIndex === null) {
+      item.pathIndex = idx;
+      return;
+    }
+
+    const targetPathIndex = item.pathIndex;
+
+    // remove all prev paths up to that point, as this means this was a loop all the way to this point
+
+    for (let [k, v] of gridMap) {
+      if (
+        v.pathIndex !== null &&
+        // Math.abs(v.pathIndex - targetPathIndex) < 2 &&
+        v.pathIndex > targetPathIndex
+      ) {
+        // cancel tiles
+        v.pathIndex = null;
+        v.neighbours = null;
+      }
+    }
+
+    item.pathIndex = targetPathIndex;
+  });
+
+  /**
+   *
+   * TODO:::::
+   *
+   *
+   *
+   * using this system there can't be any duplicates..
+   * Need to check for duplicates when overwriting the pathIndex of an existing item..
+   */
+
+  const path = getSortedPath();
+
+  log("-> 1: ", path.length);
+
+  const removeLoop = (pt) => {
+    for (let i = 1; i < 10; i++) {
+      // ends up at same point (= loop)
+      if (path[i] === pt) {
+        log("remove loopzz", pt);
+
+        //
+        range(i).forEach((prevPoint) => {
+          prevPoint += 1;
+          if (path[prevPoint]) {
+            path[prevPoint].neighbours = null;
+            path[prevPoint].pathIndex = null;
+          } else {
+            log("no prev", prevPoint);
+          }
+        });
+
+        return;
+      }
+    }
+  };
+
+  // path.forEach((p, index) => {
+  //   if (p.pathIndex === null) return;
+  //   removeLoop(p);
+  // });
+};
+
 const main = () => {
+  clear();
+
   // testEnd();
-  testInBetweenV2();
+  testRemoveLoops_1();
 
   showGrid();
   showPath();
 };
-
 // ctx.dark();
 main();

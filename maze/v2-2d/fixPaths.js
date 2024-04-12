@@ -60,7 +60,7 @@ addInbetweenPathsV3 = (indexA, indexB) => {
 // const [bx, by]= paths[indexB]
 
 // add missing point(s) diagonally when backtracking
-const addInbetweenPathsV2 = ([ax, ay], [bx, by], indexA) => {
+const addInbetweenPathsV2 = (s, indexA) => {
   const dx = bx - ax;
   const dy = by - ay;
 

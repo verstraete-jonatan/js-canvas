@@ -1,4 +1,4 @@
-let scale = 100;
+const scale = 80;
 const mX = floor(Xmax / scale);
 const mY = floor(Ymax / scale);
 
@@ -9,7 +9,7 @@ const gridMap = new Map();
  * Init grid
  */
 
-const getNeighbours = ([x, y]) => [
+const getNeighbours = (x, y) => [
   [x + 1, y], // right
   [x, y + 1], // bottom
   [x - 1, y], // left
@@ -20,7 +20,7 @@ const getNeighbours = ([x, y]) => [
 for (let x = 0; x <= mX; x++) {
   for (let y = 0; y <= mY; y++) {
     const key = asKey(x, y);
-    const neighbours = getNeighbours([x, y]).filter((i) => !isOutOfBounds(i));
+    const neighbours = getNeighbours(x, y).filter((i) => !isOutOfBounds(i));
     gridMap.set(key, {
       pos: [x, y],
       pathIndex: null,
@@ -37,6 +37,7 @@ for (let v of gridMap.values()) {
 }
 
 let current = gridMap.get(asKey(0, 0));
+let globalIndex = 1;
 
 const END = [mX - 1, mY - 1];
 const START = [...current.pos];
