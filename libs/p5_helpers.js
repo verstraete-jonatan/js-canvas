@@ -2,6 +2,7 @@ const { log, warn, info } = console;
 let pause = false;
 let ctx, cnv;
 let exit = false;
+let enableCustomEvents = true;
 
 const PI = Math.PI;
 const PI2 = Math.PI * 2;
@@ -21,7 +22,7 @@ async function sleeping(s = 0.1) {
 }
 
 window.addEventListener("keydown", (ev) => {
-  if (ev.key === " ") {
+  if (enableCustomEvents && ev.key === " ") {
     pause = !pause;
     if (pause) noLoop();
     else loop();

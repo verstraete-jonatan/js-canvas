@@ -66,6 +66,7 @@ const main = () => {
 
     for (let x = 0; x < Xmax; x += detail) {
       for (let y = 100; y < Ymax - 100; y += detail) {
+        // y += posInt(tanh(iterations) / 100000);
         n = x + y;
         a = x + cos(x * freq + iterations) * amp;
         b = y + sin(y * freq - iterations) * amp;
