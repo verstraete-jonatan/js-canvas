@@ -31,18 +31,19 @@ function draw() {
   stroke("#5f7");
   fill("#5f7");
 
-  const mesh = window.MESH?.sort((a, b) => {
-    return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
-  });
+  const mesh = window.MESH;
+  // ?.sort((a, b) => {
+  //   return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+  // });
   if (mesh) {
     translate(-900, -700, 0);
 
     mesh.forEach((a, index) => {
-      if (index === Math.floor(noiseOff * 100)) {
-        fill("#00f");
-      } else {
-        fill("#5f7");
-      }
+      // if (index === Math.floor(noiseOff * 100)) {
+      //   fill("#00f");
+      // } else {
+      //   fill("#5f7");
+      // }
       const [x, y, z] = a;
       const n = 0;
 

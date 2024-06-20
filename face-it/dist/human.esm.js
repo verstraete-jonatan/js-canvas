@@ -61166,7 +61166,7 @@ var meshAnnotations = {
 };
 
 var meshLandmarks = {
-  count: r468,
+  count: 468,
   mouth: 13,
   symmetryLine: [13, meshAnnotations.midwayBetweenEyes[0]],
 };
@@ -73790,7 +73790,7 @@ var Human = class {
     /** internal structure that keeps track of processed videos @hidden */
     __privateAdd(this, _loops, {});
     const tfVersion = (Vce.tfjs || OX).replace(/-(.*)/, "");
-    config.wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfVersion}/dist/`;
+    // config.wasmPath = `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${tfVersion}/dist/`;
     config.modelBasePath = env.browser ? "../models/" : "file://models/";
     this.version = version;
     Object.defineProperty(this, "version", { value: version });

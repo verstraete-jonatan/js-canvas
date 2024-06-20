@@ -1,6 +1,6 @@
 import { Human } from "../dist/human.esm.js";
 
-const conf = {
+const humanInstance = new Human({
   cacheSensitivity: 0,
   modelBasePath: "../models",
   filter: { enabled: true, equalization: true },
@@ -18,9 +18,8 @@ const conf = {
   hand: { enabled: false },
   object: { enabled: false },
   gesture: { enabled: false },
-};
+});
 
-const humanInstance = new Human(conf);
 humanInstance.env.perfadd = !1;
 
 var t = {
