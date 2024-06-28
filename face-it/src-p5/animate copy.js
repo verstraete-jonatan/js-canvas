@@ -34,16 +34,13 @@ function draw() {
   orbitControl(5, 5);
   background("#fff");
 
-  const mesh = window.MESH?.sort((a, b) => {
-    return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
-    // if(!x) {
-    //   const y = a[1] - b[1]
-    //   if(!y) {
+  if (!window.humanInstance) return;
 
-    //   }
+  const mesh = window.humanInstance.result.face[0]?.mesh;
 
-    // }
-  });
+  // ?.sort((a, b) => {
+  //   return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+  // });
   if (mesh) {
     translate(-900, -700, 0);
     // noStroke();
@@ -53,7 +50,7 @@ function draw() {
     // if (prevMesh) {
     mesh.forEach((a, index) => {
       const [x, y, z] = a; // smoothenVector(a, prevMesh[index]);
-      const n = 0; //niceNoiserazerFaserTaser(x, y, z) * 100;
+      const n = niceNoiserazerFaserTaser(x, y, z) * 100;
 
       push();
       // translate(x, y, z * -3);

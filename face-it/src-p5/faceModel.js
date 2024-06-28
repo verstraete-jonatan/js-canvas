@@ -23,15 +23,13 @@ const humanInstance = new Human({
 humanInstance.env.perfadd = !1;
 window.humanInstance = humanInstance;
 
-const t = {
+var t = {
   video: document.getElementById("video"),
   canvas: document.getElementById("canvas"),
   source: document.getElementById("source"),
   ctx: null,
 };
 t.ctx = t.canvas.getContext("2d");
-window.ctx = t.ctx;
-window.cnv = t.canvas;
 
 async function videoDetectLoop() {
   const face = humanInstance.result.face[0];

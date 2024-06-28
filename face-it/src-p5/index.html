@@ -3,44 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <script src="./faceModel.js" type="module"></script>
-    <script src="./perlin.js"></script>
-    <script src="./animate.js" type="module"></script>
+    <script src="/libs/p5.js"></script>
+    <!-- <script src="/libs/p5_helpers.js"></script> -->
+    <script src="animate copy.js"></script>
+    <link rel="stylesheet" href="../../libs/main_p5.css" />
+    <script src="../../p5/niceNoise.js"></script>
 
     <style>
       body {
         margin: 0;
-
+        background: rgb(255, 255, 255);
+        color: white;
         width: 100vw;
         height: 100vh;
-      }
-
-      iframe {
-        width: 90%;
-        height: 90%;
       }
       * {
         width: 100vw !important;
         height: 100vh !important;
         position: absolute !important;
       }
-
-      #canvas {
-        z-index: 1000000;
-        background: black;
-      }
-
-      /* *:not(#canvas) {
-        opacity: 0;
-      } */
     </style>
   </head>
   <body>
     <canvas id="canvas" style="padding: 8px"></canvas>
     <canvas id="source" style="padding: 8px"></canvas>
     <video id="video" playsinline style="display: none"></video>
-    <!-- 
-    <div class="centered">
-      <canvas id="canvas_01" allowfullscreen="true" allow-same-origin />
-    </div> -->
   </body>
 </html>

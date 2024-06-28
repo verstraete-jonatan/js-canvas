@@ -187,7 +187,9 @@ const pathTo = (distance = 0, name = "assets") => {
  * */
 
 const cnv =
-  document.querySelector("canvas") || document.createElement("canvas");
+  document.getElementById("canvas_01") ||
+  document.querySelector("canvas") ||
+  document.createElement("canvas");
 const ctx = cnv.getContext("2d");
 
 cnv.height = window.innerHeight;
@@ -1895,41 +1897,42 @@ const Events = {
 window.onload = () => {
   try {
     // init events
-    setTimeout(() => {
-      if (defaultEvents) {
-        Events.setKeys([
-          [" ", () => (pause = !pause)],
-          ["f", () => toggleFullscreen()],
-          ["r", () => window.location.reload()],
-        ]);
+    defaultEvents &&
+      setTimeout(() => {
+        if (defaultEvents) {
+          Events.setKeys([
+            [" ", () => (pause = !pause)],
+            ["f", () => toggleFullscreen()],
+            ["r", () => window.location.reload()],
+          ]);
 
-        Events.addClick("#btn_download", () => {
-          const l = document.createElement("a");
-          l.download = "canvas_img.png";
-          l.href = cnv.toDataURL();
-          l.click();
-          l.delete;
+          Events.addClick("#btn_download", () => {
+            const l = document.createElement("a");
+            l.download = "canvas_img.png";
+            l.href = cnv.toDataURL();
+            l.click();
+            l.delete;
+          });
+          Controls.addInfo(
+            "Events: " +
+              [...Events.keyEvents.keys()]
+                .map((i) => i.split(Events.seperator)[0])
+                .join(", ")
+          );
+          Events.listen();
+          setWindowLocation();
+        }
+        window.addEventListener("keydown", (ev) => {
+          // ev.preventDefault();
+          const ek = ev.key;
+          Events.keyEvents.forEach((v, k) => {
+            const s = k.split(Events.seperator)[0];
+            if (ek === s) {
+              v();
+            }
+          });
         });
-        Controls.addInfo(
-          "Events: " +
-            [...Events.keyEvents.keys()]
-              .map((i) => i.split(Events.seperator)[0])
-              .join(", ")
-        );
-        Events.listen();
-        setWindowLocation();
-      }
-      window.addEventListener("keydown", (ev) => {
-        // ev.preventDefault();
-        const ek = ev.key;
-        Events.keyEvents.forEach((v, k) => {
-          const s = k.split(Events.seperator)[0];
-          if (ek === s) {
-            v();
-          }
-        });
-      });
-    }, 200);
+      }, 200);
   } catch (e) {
     textCenter("LOAD Error: " + e.message);
     log(e);
