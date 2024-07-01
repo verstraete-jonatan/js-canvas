@@ -6,12 +6,6 @@ const _APP = async () => {
 
   const degRad = (i) => i * (PI / 180);
 
-  // const cnv =
-  //   document.getElementById("canvas_01") ||
-  //   document.querySelector("canvas") ||
-  //   document.createElement("canvas");
-  // const ctx = cnv.getContext("2d");
-
   const cnv = window.cnv;
   const ctx = window.ctx;
 
@@ -390,9 +384,9 @@ const _APP = async () => {
    */
 
   const drops = [];
-  let dropamt = 5000;
-  const gridDetail = 20;
   const grid = [];
+  const gridDetail = 20;
+  const noiseGrid = new Map();
   let gloablColor = 0;
 
   const noiseSetup = {
@@ -409,7 +403,6 @@ const _APP = async () => {
    If you curve in a system (Grid class) you will look for even more system and stability.
    If you want to life like a drop you experiance a short but colourfull life (like the Drp class object being removed from the memory when it reaches 10px under the screen)
    */
-
   class All {
     constructor(yourPurposeInLife = "lost") {
       this.purposeInLife = yourPurposeInLife;
@@ -419,7 +412,14 @@ const _APP = async () => {
       const { df, zoff, scale: noiseScale } = noiseSetup;
       let value = noise.perlin3(x / df, y / df, zoff) * this.noiseEffect;
 
-      const angle = ((1 + value) * 1.1 * 128) / (PI * 2);
+      const ns = getNoiseGridValue(x, y, true);
+      if (ns) {
+        value += ns / 10;
+      } else {
+        value /= 100;
+      }
+
+      const angle = ((1 + value) * 1.1 * 128) / PI2;
       return rotateVector(x * noiseScale, y, angle);
     }
   }
@@ -476,21 +476,79 @@ const _APP = async () => {
     }
   }
 
+  const geNoiseGridKey = (x, y, r = false) =>
+    r ? `${Math.floor(x)},${Math.floor(y)}` : `${x},${y}`;
+
+  const setNoiseGrid = (x, y, z, dim = 1) => {
+    y -= 500;
+    for (let col = -dim; col <= dim; col++) {
+      for (let row = -dim; row <= dim; row++) {
+        const key = geNoiseGridKey(x + col, y + row);
+        noiseGrid.set(key, noiseGrid.get(key) ?? 0 + z);
+      }
+    }
+  };
+
+  // const getNoiseGridValue = (x, y) => noiseGrid.get(geNoiseGridKey(x, y));
+
+  const getNoiseGridValue = (x, y, dim = 30) => {
+    let val = 0;
+    for (let col = -dim; col <= dim; col++) {
+      for (let row = -dim; row <= dim; row++) {
+        const key = geNoiseGridKey(x + col, y + row);
+        val += noiseGrid.get(key) ?? 0;
+      }
+    }
+    return val;
+  };
+
   const drawFace = () => {
     const mesh = window.humanInstance?.result.face[0]?.mesh;
 
     mesh?.forEach((a, index) => {
       let [x, y, z] = a;
 
-      x += 1;
-
-      // push();
-
+      y -= Ymid / 2;
       circle(x, y, 10 * (z / 100) + 1, null, "red");
-
-      // box(10);
-      // pop();
     });
+  };
+
+  const drawFaceGrid = () => {
+    const mesh = window.humanInstance?.result.face[0]?.mesh.sort(
+      (a, b) => a[0] - b[0] || a[1] - b[1]
+    );
+
+    ctx.fillStyle = "#f001";
+    ctx.beginPath();
+    let prev_y = null;
+    for (const [x, y] of mesh) {
+      if (prev_y == null) {
+        ctx.moveTo(x, y);
+      } else if (prev_y < y) {
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+
+      prev_y = y;
+    }
+    ctx.stroke();
+    // for (let key of noiseGrid.keys()) {
+    //   const [x, y] = key.split(",");
+    //   ctx.fillRect(+x, +y, 2, 2);
+    // }
+  };
+
+  const initFaceGrid = () => {
+    const mesh = window.humanInstance?.result.face[0]?.mesh;
+    if (!mesh) return;
+    const detail = 3;
+    noiseGrid.clear();
+    for (const p of mesh) {
+      setNoiseGrid(...p, detail);
+    }
   };
 
   async function main() {
@@ -500,11 +558,13 @@ const _APP = async () => {
 
     async function animation() {
       rect(0, 0, Xmax, Ymax, null, "#00000008");
-      // grid.draw();
 
-      if (drops.length < dropamt) drops.push(new Drop());
-      for (let i of drops) i.draw();
-      drawFace();
+      // if (drops.length < dropamt) drops.push(new Drop());
+      // for (let i of drops) i.draw();
+      // drawFace();
+      grid.draw();
+      initFaceGrid();
+      drawFaceGrid();
 
       noiseSetup.off();
       gloablColor = overCount(gloablColor + 0.1, 360);
@@ -524,7 +584,7 @@ window.addEventListener("load", async () => {
     return new Promise((resolve) => setTimeout(resolve, s * 1000));
   }
   while (1) {
-    await sleep(0.5);
+    await sleep(0.1);
     if (window.humanInstance?.result.face[0]?.mesh && window.cnv) {
       console.log("init");
       _APP();
@@ -532,3 +592,42 @@ window.addEventListener("load", async () => {
     }
   }
 });
+
+/*
+
+
+plan 1:
+  - a noise value based on a Vector in the mesh.
+  - needs to have some way to efficiently check what the value will be of an (x, y) in this grid.
+  - 
+
+  - 1. create a grid from the mesh and interpolate values based on a "density" parameter.
+    - a) will be a looking up grid with "x-y"
+    - b) to create the grid, we will looking all neighbours in radius "density" of each point.
+    - c) for now the "z" vertice will be ignored
+  - 2. in the getNoise function you round x and y and create a key "x-y" to looking the interpolated value in the grid.
+
+
+
+plan 2:
+the logic of plan 1 might works but there won't be any nice effect.
+- to have a good effect we could use horizontail lines as this might work with index of the mesh as well
+  - 1) create horizontal (or sort it and make vertical) lines which follow the face depth.
+    - a) draw lines of face
+    - b) .. SEE NEXT
+  - 2) make dots float on these lines
+  - 3) apply noise to the dots
+
+
+
+plan 3:
+plan 2 would work but it would be difficult to map the face on the lines or the other way around.
+- create a grid with indexes and map the index of each face node on that grid. This will need some tweeking here and there but might work
+  - a) create grid with certain density
+  - b) try to ..
+
+
+
+
+
+*/

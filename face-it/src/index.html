@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <script src="./faceModel.js" type="module"></script>
     <script src="./perlin.js"></script>
-    <script src="./animate.js" type="module"></script>
+    <script src="./animate-2.js" type="module"></script>
 
     <style>
       body {
@@ -27,20 +27,18 @@
       #canvas {
         z-index: 1000000;
         background: black;
+        filter: invert(1);
       }
 
-      /* *:not(#canvas) {
+      #source,
+      video {
         opacity: 0;
-      } */
+      }
     </style>
   </head>
   <body>
     <canvas id="canvas" style="padding: 8px"></canvas>
     <canvas id="source" style="padding: 8px"></canvas>
     <video id="video" playsinline style="display: none"></video>
-    <!-- 
-    <div class="centered">
-      <canvas id="canvas_01" allowfullscreen="true" allow-same-origin />
-    </div> -->
   </body>
 </html>
