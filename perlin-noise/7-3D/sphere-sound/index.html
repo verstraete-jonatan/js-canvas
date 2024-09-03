@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D-main</title>
-    <link rel="stylesheet" href="../../../main.css">
+    <title>tree</title>
+    <link rel="stylesheet" href="/main.css">
 </head>
+
 <body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <div id="controls">
+    </div>
     <div class="float">
         <button id="start">START</button>
     </div>
@@ -18,13 +28,16 @@
         </audio>
     </div>
     <div class="centered">
-        <canvas id="canvas_01"  width="1200" height="900"></canvas>
+        <canvas id="canvas_01" width="1200" height="900"></canvas>
     </div>
 
 
-    <script src="../../../setup.js"></script>
-    <script src="../../../libs/perlin.js"></script>
-    <script src="../getAudio.js"></script>
-    <script src="3.js"></script>
+    <script src="/setup.js"></script>
+    <script src="/libs/perlin.js"></script>
+    <script src="./config.js"></script>
+    <script src="./functions.js"></script>
+    <script src="../../../Audio/audio-to-visual/getAudio.js"></script>
+    <script src="./main.js"></script>
 </body>
+
 </html>

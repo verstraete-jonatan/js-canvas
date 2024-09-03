@@ -952,7 +952,11 @@ Array.prototype.random = function () {
 };
 
 Array.prototype.sum = function () {
-  return this.reduce((t, i) => t + i, 0);
+  let t = 0;
+  for (let i of this) {
+    t += i;
+  }
+  return t; // this.reduce((t, i) => t + i, 0);
 };
 
 Array.prototype.average = function () {

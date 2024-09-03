@@ -16,7 +16,7 @@ for (let _i = 0; _i < nrDots; _i++) {
   points.push([0, 0]);
 }
 let iter = 0;
-cnv.style.filter = `blur(20px) invert(1)`;
+cnv.style.filter = `blur(1px) invert(1)`;
 
 const main = () => {
   const a = (PI2 / nrSides) * tan(++iter / 100);

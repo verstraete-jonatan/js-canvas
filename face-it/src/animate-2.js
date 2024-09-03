@@ -1,575 +1,556 @@
 const _APP = async () => {
-  const { cos, sin, atan, floor } = Math;
-
-  const PI = Math.PI;
-  const PI2 = Math.PI * 2;
-
-  const degRad = (i) => i * (PI / 180);
+  const CONF = {
+    gridSize: 4,
+  };
+  const noiseGrid = new Map();
+  window.noiseGrid = noiseGrid;
 
   const cnv = window.cnv;
   const ctx = window.ctx;
-
   cnv.height = window.innerHeight;
   cnv.width = window.innerWidth;
 
-  let pause = false;
-  let exit = false;
-
-  const Ymid = cnv.height / 2;
-  const Ymax = cnv.height;
-
-  const Xmid = cnv.width / 2;
-  const Xmax = cnv.width;
-
-  function clear(setColor = null) {
-    return;
-    if (setColor) {
-      rect(0, 0, cnv.width, cnv.height, false, setColor);
-    } else {
-      ctx.clearRect(0, 0, Xmax, Ymax);
-    }
+  function hsl(v, s = 50, l = 50, a = 1) {
+    return `hsl(${v},${s}%, ${l}%, ${a})`;
   }
 
-  function rect(x1, y1, x2, y2, stroke = "#000", fill) {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y1);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x1, y2);
-    ctx.lineTo(x1, y1);
+  const rounded = (n) => Math.round(n / 2) * 2;
 
-    if (stroke) {
-      ctx.strokeStyle = stroke;
-      ctx.stroke();
-    }
-    if (fill) {
-      ctx.fillStyle = fill;
-      ctx.fill();
-    }
-    ctx.closePath();
-  }
+  const geNoiseGridKey = (x, y, r = true) =>
+    r ? `${rounded(x)},${rounded(y)}` : `${x},${y}`;
 
-  function line(x1, y1, x2, y2, stroke = null, fill = null) {
-    if (stroke) ctx.strokeStyle = stroke;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.closePath();
-    ctx.stroke();
-  }
-
-  function point(x, y, s = 10, fill) {
-    if (isObj(x)) {
-      fill = s;
-      s = y || s;
-      y = x.y;
-      x = x.x;
-    }
-    circle(x, y, s / 2, null, fill);
-  }
-
-  function circle(x = Xmid, y = Ymid, r = 200, stroke = "#111", fill) {
-    if (r < 0) r *= -1;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    if (stroke) {
-      ctx.strokeStyle = stroke;
-      ctx.stroke();
-    }
-    if (fill) {
-      ctx.fillStyle = fill;
-      ctx.fill();
-    }
-    ctx.closePath();
-  }
-
-  function textCenter(txt, size = 20, color = null) {
-    const l = ctx.font;
-    if (color) ctx.fillStyle = color;
-    txt = str(txt);
-    ctx.font = size + "px verdana";
-    ctx.fillText(txt, Xmid - (txt.length * size) / 3.2, Ymid);
-    ctx.font = l;
-  }
-
-  function overCount(i, max, min = 0, nullable = true) {
-    let stopinifnite = 0;
-    while (i >= max) {
-      stopinifnite++;
-      if (stopinifnite > 1000) exitting("INFITE max");
-      if (nullable && i == 0) return i;
-      i -= max;
-    }
-    while (i < min) {
-      stopinifnite++;
-      if (stopinifnite > 1000) exitting("INFITE min");
-
-      if (nullable && i == 0) return i;
-      i += posInt(min || 1);
-    }
-    return i;
-  }
-
-  function rotateVector(x, y, angle, rad = 1, isDeg = false) {
-    let _x = degRad(x);
-    let _y = degRad(y);
-    // ? numbers that make is somehow even rotations
-    const ang = isDeg ? degRad(-angle - 50.5) : -angle - 50.5;
-
-    const cs = cos(ang) * rad;
-    const sn = sin(ang) * rad;
-    return {
-      x: toFixed(_x * cs - _y * sn),
-      y: toFixed(_x * sn + _y * cs),
-      angle: angle,
-    };
-  }
-
-  function toFixed(nr, amt = 3) {
-    return +nr.toFixed(amt);
-  }
-
-  function numMax(n, max) {
-    return n > max ? max : n;
-  }
-
-  function range(n = 1, detail = 1) {
-    if (n < 0) return nRange(n);
-    let res = [];
-    for (let i = n < 0 ? n : 0; i < n; i += detail) {
-      res.push(+i);
-    }
-    return res;
-  }
-
-  function nRange(n = 1) {
-    if (n > 0) return range(n);
-    let res = [];
-    for (let i = 0; i > n; i--) {
-      res.push(i);
-    }
-    return res;
-  }
-
-  function range0(n = 1) {
-    //[...new Array(floor(window.innerWidth/pxScale))].map((i, idx)=>idx)
-    // return new Array(n)
-    let res = [];
-    for (let i = n < 0 ? n : 0; i < n; i += 1) {
-      res.push(0);
-    }
-    return res;
-  }
-
-  function rangeF(f = () => "", n = 1) {
-    let res = [];
-    for (let i = n < 0 ? n : 0; i < n; i += 1) {
-      res.push(f(i));
-    }
-    return res;
-  }
-
-  function rangeSign(n = 1, sign) {
-    // return new Array(n)
-    let res = [];
-    for (let i = n < 0 ? n : 0; i < n; i += 1) {
-      res.push(sign);
-    }
-    return res.join("");
-  }
-
-  function sleep(s = 0.1) {
-    return new Promise((resolve) => setTimeout(resolve, s * 1000));
-  }
-
-  async function pauseHalt(sl, overlay = true) {
-    if (sl) {
-      await sleep(sl);
-    }
-    if (pause) {
-      if (overlay) overlayDIV.set("=", "overlay-pause", "overlay-fixed");
-      //else textCenter("||", 200, "white")
-      let timeout = 0;
-      while (pause) {
-        await sleep();
-        timeout++;
-        if (timeout > 2000) {
-          pause = false;
-          if (overlay) {
-            overlayDIV.remove();
-            overlayDIV.set("TIME-OUT, press r", "overlay-fixed", "red");
-            Events.setKey("r", () => window.location.reload());
-            exitting("sleep timeout");
-          }
-        }
-      }
-      if (overlay) overlayDIV.remove();
-    }
-    return;
-  }
-
-  function exitting(msg = "--exit--", force = false) {
-    throw new Error(msg);
-  }
-
-  function repeatF(f = () => {}, times = 10) {
-    for (let i = 0; i < times; i += 1) {
-      f((i = i));
-    }
-  }
-
-  function repeatS(s = "", times = 1) {
-    let r = s;
-    for (let i = 1; i < times; i += 1) {
-      r += s;
-    }
-    return r;
-  }
-
-  function ctxError(s) {
-    clear();
-    textCenter(s);
-    throw new Error(s);
-  }
-
-  function isObj(n) {
-    return Object.is(n);
-  }
-
-  function isClass(a) {
-    return !Object.is(a) && a.__proto__.constructor.name !== "Object";
-  }
-
-  function isArray(n) {
-    return n instanceof Array;
-  }
-
-  function isString(n) {
-    return typeof n === "string"; //n instanceof String
-  }
-
-  function isInt(n) {
-    return n instanceof Number;
-  }
-
-  function str(a) {
-    return String(a);
-  }
-
-  function int(a) {
-    return +a;
-  }
-
-  function posInt(a) {
-    return a < 0 ? a * -1 : a;
-  }
-
-  function negInt(a) {
-    return a > 0 ? a * -1 : a;
-  }
-
-  function isNeg(a) {
-    return a < 0;
-  }
-
-  function isPos(a) {
-    return a > 0;
-  }
-
-  function oppInt(a) {
-    return a > 0 ? -1 : 1;
-  }
-
-  function hex(
-    int,
-    strLen = 1,
-    formatted = false,
-    { bit6 = false, transparency = 1 } = {}
-  ) {
-    // ff=255, fff=4095
-    let hex = int.toString(16);
-    while (hex.length < strLen) {
-      hex = "0" + hex;
-    }
-    if (bit6 || transparency) {
-      // fff => ffffff
-      if (hex.length === 3)
-        hex = hex
-          .split("")
-          .map((i, idx) => i + i)
-          .join("");
-      // fff/ffffff => ffffff22
-      if (transparency) hex += (transparency * 255).toString(16);
-    }
-    return formatted ? "#" + hex : hex;
-  }
-
-  function hsl(v, s = 50, l = 50, a = 1, obj = false) {
-    return obj ? { v: v, s: s, l: l, a: a } : `hsl(${v},${s}%, ${l}%, ${a})`;
-  }
-
-  function hslTo(h, s = 0, l = 0, hex = false, raw = true) {
-    if (typeof h === "string") {
-      [h, s, l] = h
-        .match(/\d*/g)
-        .filter((i) => i)
-        .map((i) => (+i < 0 ? (i *= -1) : +i));
-    }
-    l /= 100;
-    const a = (s * Math.min(l, 1 - l)) / 100;
-    const f = (n) => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return hex
-        ? Math.round(255 * color)
-            .toString(16)
-            .padStart(2, "0")
-        : Math.round(color * 255); // convert to Hex and prefix "0" if needed
-    };
-    return raw && !hex ? [f(0), f(8), f(4)] : "#" + f(0) + f(8) + f(4);
-  }
-
-  function randint(a = 1, b = 0, rounded = true) {
-    const n = b
-      ? Math.random() * (b - a + 1) + a
-      : Math.random() * (a - b + 1) + b;
-    return rounded ? floor(n) : n;
-  }
-
-  /**
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   *    *
-   *
-   *
-   *
-   *
-   *
-   *
-   *   *
-   *
-   *
-   *
-   *
-   *
-   *
-   *   *
-   *
-   *
-   *
-   *
-   *
-   *
-   *   *
-   *
-   *
-   *
-   *
-   *
-   *
-   *   *
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   *
-   */
-
-  const drops = [];
-  const grid = [];
-  const gridDetail = 20;
-  const noiseGrid = new Map();
-  let gloablColor = 0;
-
-  const noiseSetup = {
-    df: 500,
-    zoff: 1,
-    scale: 1,
-    off() {
-      this.zoff += 0.002;
-    },
-  };
-  /**
-   * Explenation for not curious enough people abou the argument in the All class.
-   If you don't take your steps in life (All class) youre purpoe in life will be lost.
-   If you curve in a system (Grid class) you will look for even more system and stability.
-   If you want to life like a drop you experiance a short but colourfull life (like the Drp class object being removed from the memory when it reaches 10px under the screen)
-   */
-  class All {
-    constructor(yourPurposeInLife = "lost") {
-      this.purposeInLife = yourPurposeInLife;
-      this.noiseEffect = 0.1 + Math.random();
-    }
-    getNoise(x, y, z) {
-      const { df, zoff, scale: noiseScale } = noiseSetup;
-      let value = noise.perlin3(x / df, y / df, zoff) * this.noiseEffect;
-
-      const ns = getNoiseGridValue(x, y, true);
-      if (ns) {
-        value += ns / 10;
-      } else {
-        value /= 100;
-      }
-
-      const angle = ((1 + value) * 1.1 * 128) / PI2;
-      return rotateVector(x * noiseScale, y, angle);
-    }
-  }
-
-  class Grid extends All {
-    constructor() {
-      super("be in balance");
-      this.points = [];
-      for (let x of range(Xmax)) {
-        for (let y of range(Ymax)) {
-          if (x % gridDetail == 0 && y % gridDetail == 0)
-            this.points.push({ x: x, y: y });
-        }
-      }
-    }
-    draw() {
-      for (let p of this.points) {
-        const { x, y } = p;
-        const v = this.getNoise(x, y);
-        line(x, y, x + v.x, y + v.y, "#666");
-      }
-    }
-  }
-
-  class Drop extends All {
-    constructor() {
-      super("to flower");
-      this.speed = (randint(10) + 0.1) / 20;
-      this.x = randint(Xmax);
-      this.y = -20;
-
-      this.width = this.speed * 10;
-      this.color = 0;
-    }
-    draw() {
-      const { x, y, width } = this;
-      this.y += this.speed;
-
-      if (y > Ymax + 10) {
-        const idx = drops.indexOf(this);
-        if (idx === -1) {
-          exitting("Whaaat");
-        }
-        drops.splice(idx, 1, new Drop());
-        // drops.remove(this);
-        // drops.push(new Drop());
-        return;
-      }
-      const v = this.getNoise(x, y);
-
-      circle(x + v.x, y + v.y, width, hsl(this.color + gloablColor));
-
-      this.color += 0.1;
-    }
-  }
-
-  const geNoiseGridKey = (x, y, r = false) =>
-    r ? `${Math.floor(x)},${Math.floor(y)}` : `${x},${y}`;
-
-  const setNoiseGrid = (x, y, z, dim = 1) => {
-    y -= 500;
+  const setNoiseGrid = ([x, y, z], dim = 3) => {
+    z = (z + 30) / 90;
+    y -= 200;
     for (let col = -dim; col <= dim; col++) {
       for (let row = -dim; row <= dim; row++) {
-        const key = geNoiseGridKey(x + col, y + row);
-        noiseGrid.set(key, noiseGrid.get(key) ?? 0 + z);
+        const _x = x + col * CONF.gridSize;
+        const _y = y + row * CONF.gridSize;
+        const key = geNoiseGridKey(_x, _y);
+        // if (noiseGrid.has(key)) continue;
+        // const value = (Math.abs(col) * Math.abs(row)) / (2 * dim);
+        const value = Math.sin(Math.abs(col * row) / dim) * z;
+        // const value = z
+
+        noiseGrid.set(key, {
+          _x,
+          _y,
+          v: noiseGrid.get(key)?.v ?? 0 + value,
+        });
       }
     }
-  };
-
-  // const getNoiseGridValue = (x, y) => noiseGrid.get(geNoiseGridKey(x, y));
-
-  const getNoiseGridValue = (x, y, dim = 30) => {
-    let val = 0;
-    for (let col = -dim; col <= dim; col++) {
-      for (let row = -dim; row <= dim; row++) {
-        const key = geNoiseGridKey(x + col, y + row);
-        val += noiseGrid.get(key) ?? 0;
-      }
-    }
-    return val;
-  };
-
-  const drawFace = () => {
-    const mesh = window.humanInstance?.result.face[0]?.mesh;
-
-    mesh?.forEach((a, index) => {
-      let [x, y, z] = a;
-
-      y -= Ymid / 2;
-      circle(x, y, 10 * (z / 100) + 1, null, "red");
-    });
   };
 
   const drawFaceGrid = () => {
-    const mesh = window.humanInstance?.result.face[0]?.mesh.sort(
-      (a, b) => a[0] - b[0] || a[1] - b[1]
-    );
+    const mesh = window.humanInstance?.result.face[0]?.mesh ?? [];
+    // const mesh = [
+    //   [600, 717, 46],
+    //   [603, 667, 39],
+    //   [604, 763, 48],
+    //   [607, 712, 30],
+    //   [607, 754, 30],
+    //   [608, 808, 47],
+    //   [612, 627, 30],
+    //   [612, 797, 31],
+    //   [616, 857, 44],
+    //   [617, 671, 26],
+    //   [620, 842, 29],
+    //   [627, 637, 19],
+    //   [627, 707, 19],
+    //   [627, 743, 16],
+    //   [630, 588, 21],
+    //   [631, 883, 26],
+    //   [632, 784, 14],
+    //   [632, 906, 38],
+    //   [633, 674, 15],
+    //   [637, 826, 15],
+    //   [642, 647, 9],
+    //   [643, 861, 16],
+    //   [644, 701, 14],
+    //   [646, 605, 11],
+    //   [647, 726, 11],
+    //   [648, 676, 10],
+    //   [652, 919, 19],
+    //   [653, 945, 30],
+    //   [654, 654, 5],
+    //   [659, 555, 12],
+    //   [661, 627, 3],
+    //   [661, 737, 7],
+    //   [661, 884, 11],
+    //   [662, 693, 11],
+    //   [663, 831, 5],
+    //   [665, 676, 8],
+    //   [667, 709, 9],
+    //   [673, 639, 0],
+    //   [673, 661, 3],
+    //   [676, 582, 5],
+    //   [676, 686, 9],
+    //   [676, 944, 13],
+    //   [677, 676, 6],
+    //   [677, 783, 1],
+    //   [677, 972, 21],
+    //   [678, 716, 7],
+    //   [682, 683, 8],
+    //   [682, 695, 7],
+    //   [686, 740, 3],
+    //   [686, 903, 5],
+    //   [687, 669, 4],
+    //   [687, 679, 6],
+    //   [689, 652, 1],
+    //   [689, 686, 7],
+    //   [689, 841, 0],
+    //   [691, 700, 5],
+    //   [692, 614, -1],
+    //   [694, 675, 5],
+    //   [696, 688, 5],
+    //   [697, 719, 4],
+    //   [699, 663, 2],
+    //   [700, 630, -2],
+    //   [702, 969, 8],
+    //   [703, 669, 3],
+    //   [704, 805, -2],
+    //   [705, 531, 5],
+    //   [706, 702, 3],
+    //   [706, 997, 14],
+    //   [707, 689, 4],
+    //   [709, 941, 3],
+    //   [710, 895, 0],
+    //   [711, 648, 0],
+    //   [716, 658, 1],
+    //   [716, 855, -2],
+    //   [719, 665, 2],
+    //   [719, 755, -1],
+    //   [720, 568, 0],
+    //   [721, 717, 2],
+    //   [721, 734, 1],
+    //   [723, 690, 3],
+    //   [723, 701, 2],
+    //   [726, 921, 0],
+    //   [728, 988, 3],
+    //   [729, 890, -1],
+    //   [730, 826, -3],
+    //   [732, 612, -5],
+    //   [732, 1013, 8],
+    //   [733, 778, -3],
+    //   [734, 664, 2],
+    //   [735, 657, 1],
+    //   [735, 963, 0],
+    //   [736, 648, 0],
+    //   [736, 869, -4],
+    //   [737, 629, -4],
+    //   [738, 687, 3],
+    //   [741, 698, 2],
+    //   [744, 710, 2],
+    //   [744, 909, -2],
+    //   [746, 724, 0],
+    //   [746, 942, -2],
+    //   [747, 803, -4],
+    //   [748, 739, -2],
+    //   [749, 889, -1],
+    //   [750, 667, 3],
+    //   [750, 850, -7],
+    //   [752, 659, 3],
+    //   [752, 683, 4],
+    //   [753, 760, -4],
+    //   [754, 519, 0],
+    //   [754, 881, -5],
+    //   [754, 889, -2],
+    //   [757, 691, 3],
+    //   [757, 1007, -1],
+    //   [758, 887, -3],
+    //   [758, 896, -4],
+    //   [760, 784, -4],
+    //   [760, 883, -5],
+    //   [760, 886, -3],
+    //   [761, 673, 4],
+    //   [761, 680, 5],
+    //   [761, 921, -5],
+    //   [761, 1027, 2],
+    //   [762, 702, 2],
+    //   [762, 782, -9],
+    //   [762, 891, -5],
+    //   [762, 981, -3],
+    //   [764, 562, -3],
+    //   [765, 712, 0],
+    //   [765, 772, -12],
+    //   [766, 653, 1],
+    //   [766, 678, 5],
+    //   [766, 685, 4],
+    //   [766, 791, -11],
+    //   [766, 872, -9],
+    //   [766, 884, -5],
+    //   [767, 726, -3],
+    //   [767, 782, -13],
+    //   [767, 835, -9],
+    //   [767, 888, -5],
+    //   [769, 669, 4],
+    //   [769, 744, -5],
+    //   [769, 881, -4],
+    //   [769, 902, -7],
+    //   [770, 758, -8],
+    //   [770, 887, -4],
+    //   [771, 956, -5],
+    //   [772, 876, -8],
+    //   [773, 679, 4],
+    //   [773, 788, -14],
+    //   [773, 794, -12],
+    //   [773, 895, -8],
+    //   [774, 694, 2],
+    //   [774, 804, -7],
+    //   [775, 612, -7],
+    //   [777, 889, -7],
+    //   [778, 761, -16],
+    //   [778, 880, -8],
+    //   [779, 700, 0],
+    //   [779, 773, -18],
+    //   [779, 800, -10],
+    //   [779, 886, -6],
+    //   [780, 711, -4],
+    //   [781, 665, 2],
+    //   [781, 789, -13],
+    //   [781, 792, -11],
+    //   [781, 860, -12],
+    //   [781, 879, -7],
+    //   [781, 933, -7],
+    //   [782, 638, -5],
+    //   [782, 728, -8],
+    //   [782, 745, -11],
+    //   [784, 682, 1],
+    //   [786, 781, -19],
+    //   [786, 796, -11],
+    //   [787, 870, -11],
+    //   [787, 911, -10],
+    //   [789, 899, -10],
+    //   [790, 684, -1],
+    //   [791, 876, -11],
+    //   [791, 891, -9],
+    //   [792, 695, -6],
+    //   [792, 784, -18],
+    //   [793, 712, -11],
+    //   [793, 1017, -6],
+    //   [794, 747, -20],
+    //   [794, 766, -22],
+    //   [794, 885, -8],
+    //   [794, 1036, 0],
+    //   [795, 729, -15],
+    //   [795, 877, -9],
+    //   [796, 662, -3],
+    //   [796, 993, -8],
+    //   [798, 798, -12],
+    //   [800, 780, -23],
+    //   [800, 784, -20],
+    //   [801, 803, -13],
+    //   [801, 965, -7],
+    //   [802, 824, -13],
+    //   [804, 681, -9],
+    //   [804, 807, -13],
+    //   [805, 852, -14],
+    //   [806, 700, -14],
+    //   [806, 864, -14],
+    //   [807, 941, -7],
+    //   [808, 873, -12],
+    //   [808, 903, -12],
+    //   [808, 916, -12],
+    //   [809, 718, -18],
+    //   [809, 892, -11],
+    //   [810, 514, 0],
+    //   [810, 737, -23],
+    //   [810, 790, -21],
+    //   [810, 885, -10],
+    //   [811, 762, -26],
+    //   [811, 794, -17],
+    //   [811, 876, -10],
+    //   [813, 560, -3],
+    //   [814, 782, -25],
+    //   [814, 792, -22],
+    //   [815, 797, -17],
+    //   [816, 613, -7],
+    //   [818, 638, -7],
+    //   [819, 656, -6],
+    //   [820, 793, -23],
+    //   [821, 674, -10],
+    //   [821, 798, -17],
+    //   [823, 694, -15],
+    //   [825, 713, -19],
+    //   [827, 734, -24],
+    //   [828, 806, -14],
+    //   [828, 821, -13],
+    //   [828, 853, -15],
+    //   [828, 864, -14],
+    //   [828, 871, -13],
+    //   [828, 875, -11],
+    //   [829, 760, -26],
+    //   [829, 793, -23],
+    //   [829, 798, -17],
+    //   [829, 885, -10],
+    //   [830, 781, -25],
+    //   [830, 893, -11],
+    //   [830, 904, -13],
+    //   [831, 916, -12],
+    //   [831, 940, -7],
+    //   [833, 965, -8],
+    //   [835, 993, -9],
+    //   [836, 797, -16],
+    //   [836, 1018, -7],
+    //   [836, 1037, -1],
+    //   [838, 680, -8],
+    //   [839, 792, -22],
+    //   [840, 698, -13],
+    //   [840, 716, -17],
+    //   [841, 659, -3],
+    //   [842, 795, -16],
+    //   [843, 736, -22],
+    //   [844, 790, -22],
+    //   [844, 874, -10],
+    //   [845, 780, -25],
+    //   [845, 792, -16],
+    //   [846, 760, -26],
+    //   [846, 883, -10],
+    //   [847, 788, -21],
+    //   [847, 870, -12],
+    //   [848, 890, -10],
+    //   [849, 681, -1],
+    //   [849, 861, -13],
+    //   [850, 692, -5],
+    //   [850, 849, -14],
+    //   [850, 901, -12],
+    //   [851, 805, -12],
+    //   [852, 634, -5],
+    //   [852, 710, -10],
+    //   [852, 822, -12],
+    //   [852, 913, -11],
+    //   [853, 679, 2],
+    //   [854, 726, -14],
+    //   [854, 800, -12],
+    //   [855, 661, 3],
+    //   [855, 938, -7],
+    //   [857, 608, -6],
+    //   [857, 777, -22],
+    //   [857, 781, -20],
+    //   [857, 795, -12],
+    //   [858, 743, -19],
+    //   [859, 873, -8],
+    //   [860, 696, 0],
+    //   [861, 558, -2],
+    //   [861, 763, -22],
+    //   [862, 707, -3],
+    //   [862, 881, -8],
+    //   [863, 674, 5],
+    //   [863, 724, -7],
+    //   [863, 780, -17],
+    //   [863, 871, -10],
+    //   [864, 689, 3],
+    //   [864, 962, -7],
+    //   [865, 514, 2],
+    //   [865, 886, -9],
+    //   [866, 664, 5],
+    //   [866, 740, -10],
+    //   [867, 648, 2],
+    //   [867, 792, -10],
+    //   [867, 865, -11],
+    //   [868, 894, -9],
+    //   [869, 776, -18],
+    //   [870, 673, 6],
+    //   [870, 680, 5],
+    //   [871, 874, -6],
+    //   [871, 906, -9],
+    //   [872, 788, -11],
+    //   [872, 855, -11],
+    //   [872, 989, -7],
+    //   [873, 756, -15],
+    //   [873, 784, -12],
+    //   [873, 795, -9],
+    //   [874, 667, 6],
+    //   [874, 707, 0],
+    //   [874, 768, -17],
+    //   [874, 881, -5],
+    //   [875, 675, 6],
+    //   [875, 720, -2],
+    //   [875, 874, -6],
+    //   [876, 696, 3],
+    //   [876, 738, -4],
+    //   [877, 752, -7],
+    //   [877, 883, -6],
+    //   [877, 1013, -5],
+    //   [877, 1032, 0],
+    //   [878, 799, -7],
+    //   [879, 788, -11],
+    //   [879, 927, -6],
+    //   [880, 686, 4],
+    //   [880, 782, -13],
+    //   [880, 870, -7],
+    //   [881, 653, 4],
+    //   [881, 875, -3],
+    //   [881, 881, -3],
+    //   [881, 888, -7],
+    //   [884, 660, 5],
+    //   [884, 677, 5],
+    //   [885, 766, -11],
+    //   [885, 776, -12],
+    //   [885, 785, -10],
+    //   [885, 877, -3],
+    //   [885, 881, -3],
+    //   [885, 896, -6],
+    //   [886, 828, -8],
+    //   [886, 865, -7],
+    //   [887, 775, -8],
+    //   [888, 778, -3],
+    //   [890, 876, -3],
+    //   [890, 879, -1],
+    //   [890, 884, -3],
+    //   [891, 950, -3],
+    //   [892, 753, -2],
+    //   [892, 880, -1],
+    //   [894, 620, -3],
+    //   [894, 703, 3],
+    //   [894, 716, 2],
+    //   [894, 888, -3],
+    //   [895, 639, 1],
+    //   [895, 732, 0],
+    //   [896, 691, 4],
+    //   [896, 873, -3],
+    //   [896, 881, 0],
+    //   [896, 914, -3],
+    //   [897, 648, 3],
+    //   [898, 603, -3],
+    //   [898, 680, 5],
+    //   [899, 656, 4],
+    //   [900, 881, 0],
+    //   [902, 795, -2],
+    //   [902, 842, -5],
+    //   [903, 559, 1],
+    //   [903, 974, -2],
+    //   [907, 1019, 4],
+    //   [909, 900, 0],
+    //   [910, 998, 0],
+    //   [912, 522, 7],
+    //   [912, 933, 0],
+    //   [913, 680, 5],
+    //   [913, 769, -1],
+    //   [914, 655, 5],
+    //   [914, 692, 4],
+    //   [914, 859, -2],
+    //   [915, 648, 3],
+    //   [917, 707, 4],
+    //   [919, 724, 3],
+    //   [919, 816, -2],
+    //   [920, 637, 1],
+    //   [921, 880, 0],
+    //   [923, 745, 0],
+    //   [925, 953, 2],
+    //   [929, 618, 0],
+    //   [929, 657, 6],
+    //   [929, 678, 6],
+    //   [929, 910, 1],
+    //   [930, 691, 6],
+    //   [931, 1003, 10],
+    //   [932, 650, 5],
+    //   [933, 844, 0],
+    //   [934, 977, 5],
+    //   [935, 601, 1],
+    //   [938, 676, 8],
+    //   [939, 662, 7],
+    //   [940, 707, 7],
+    //   [941, 639, 3],
+    //   [941, 883, 3],
+    //   [942, 793, 0],
+    //   [944, 655, 7],
+    //   [944, 687, 8],
+    //   [945, 568, 8],
+    //   [945, 666, 9],
+    //   [945, 673, 10],
+    //   [947, 928, 6],
+    //   [950, 669, 11],
+    //   [951, 681, 10],
+    //   [953, 727, 6],
+    //   [953, 983, 16],
+    //   [954, 661, 9],
+    //   [955, 624, 3],
+    //   [956, 541, 16],
+    //   [956, 672, 12],
+    //   [956, 955, 11],
+    //   [957, 646, 7],
+    //   [957, 702, 10],
+    //   [958, 827, 3],
+    //   [964, 611, 6],
+    //   [964, 888, 8],
+    //   [965, 660, 11],
+    //   [965, 768, 4],
+    //   [966, 694, 12],
+    //   [969, 677, 14],
+    //   [973, 637, 8],
+    //   [974, 589, 15],
+    //   [975, 721, 10],
+    //   [976, 927, 16],
+    //   [976, 956, 24],
+    //   [980, 658, 13],
+    //   [980, 814, 8],
+    //   [983, 629, 13],
+    //   [985, 571, 25],
+    //   [985, 684, 18],
+    //   [985, 866, 15],
+    //   [986, 709, 15],
+    //   [992, 656, 18],
+    //   [993, 619, 23],
+    //   [993, 926, 34],
+    //   [995, 900, 23],
+    //   [1000, 689, 23],
+    //   [1000, 842, 19],
+    //   [1003, 609, 35],
+    //   [1003, 806, 18],
+    //   [1004, 652, 30],
+    //   [1004, 765, 18],
+    //   [1005, 724, 20],
+    //   [1008, 887, 43],
+    //   [1010, 863, 30],
+    //   [1013, 648, 44],
+    //   [1016, 692, 35],
+    //   [1017, 822, 33],
+    //   [1017, 836, 49],
+    //   [1019, 697, 51],
+    //   [1019, 743, 53],
+    //   [1020, 734, 35],
+    //   [1020, 776, 35],
+    //   [1020, 788, 52],
+    // ];
 
-    ctx.fillStyle = "#f001";
-    ctx.beginPath();
-    let prev_y = null;
-    for (const [x, y] of mesh) {
-      if (prev_y == null) {
-        ctx.moveTo(x, y);
-      } else if (prev_y < y) {
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-
-      prev_y = y;
-    }
-    ctx.stroke();
-    // for (let key of noiseGrid.keys()) {
-    //   const [x, y] = key.split(",");
-    //   ctx.fillRect(+x, +y, 2, 2);
-    // }
-  };
-
-  const initFaceGrid = () => {
-    const mesh = window.humanInstance?.result.face[0]?.mesh;
-    if (!mesh) return;
-    const detail = 3;
     noiseGrid.clear();
-    for (const p of mesh) {
-      setNoiseGrid(...p, detail);
+    mesh.forEach((i) => setNoiseGrid(i));
+
+    for (const { _x, _y, v } of [...noiseGrid.values()]) {
+      ctx.fillStyle = hsl(v * 360);
+      ctx.fillRect(_x, _y, 2, 2);
     }
+
+    // ctx.fillStyle = "#f001";
+    // ctx.beginPath();
+    // let prev_y = null;
+    // for (const [x, y] of mesh) {
+    //   if (prev_y == null) {
+    //     ctx.moveTo(x, y);
+    //   } else if (prev_y < y) {
+    //     ctx.stroke();
+    //     ctx.beginPath();
+    //     ctx.moveTo(x, y);
+    //   } else {
+    //     ctx.lineTo(x, y);
+    //   }
+
+    //   prev_y = y;
+    // }
+    // ctx.stroke();
+    // // for (let key of noiseGrid.keys()) {
+    // //   const [x, y] = key.split(",");
+    // //   ctx.fillRect(+x, +y, 2, 2);
+    // // }
   };
 
   async function main() {
-    //ctx.globalCompositeOperation = "multiply"
-    // ctx.globalAlpha = 1;
-    const grid = new Grid();
-
     async function animation() {
-      rect(0, 0, Xmax, Ymax, null, "#00000008");
-
-      // if (drops.length < dropamt) drops.push(new Drop());
-      // for (let i of drops) i.draw();
-      // drawFace();
-      grid.draw();
-      initFaceGrid();
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
       drawFaceGrid();
 
-      noiseSetup.off();
-      gloablColor = overCount(gloablColor + 0.1, 360);
-
-      await pauseHalt();
       requestAnimationFrame(animation);
     }
 
@@ -627,6 +608,10 @@ plan 2 would work but it would be difficult to map the face on the lines or the 
   - b) try to ..
 
 
+plan 4:
+do plan 1, but good.
+- 1) create grid with values based neighbours. The value of a cell is based on neighbours being a node of the face. Multiple will increase the value with a max.
+- dtadaaa
 
 
 

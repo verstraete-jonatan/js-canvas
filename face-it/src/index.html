@@ -4,30 +4,27 @@
     <meta charset="utf-8" />
     <script src="./faceModel.js" type="module"></script>
     <script src="./perlin.js"></script>
-    <script src="./animate-2.js" type="module"></script>
+    <script src="./animate-6.js" type="module"></script>
 
     <style>
-      body {
-        margin: 0;
-
-        width: 100vw;
-        height: 100vh;
-      }
-
-      iframe {
-        width: 90%;
-        height: 90%;
-      }
       * {
         width: 100vw !important;
         height: 100vh !important;
         position: absolute !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
 
       #canvas {
         z-index: 1000000;
-        background: black;
-        filter: invert(1);
+        /* opacity: 0.9; */
+        background: rgb(255, 255, 255);
+      }
+
+      #virtual {
+        z-index: 9999999;
+        opacity: 0.5;
+        display: none;
       }
 
       #source,
@@ -37,8 +34,10 @@
     </style>
   </head>
   <body>
-    <canvas id="canvas" style="padding: 8px"></canvas>
-    <canvas id="source" style="padding: 8px"></canvas>
+    <canvas id="canvas"></canvas>
+    <canvas id="source"></canvas>
+    <canvas id="virtual"></canvas>
+
     <video id="video" playsinline style="display: none"></video>
   </body>
 </html>

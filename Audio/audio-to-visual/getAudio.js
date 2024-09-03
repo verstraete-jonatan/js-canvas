@@ -1,11 +1,11 @@
-const GatherAudio = (MAIN = () => "") => {
+const GatherAudio = (MAIN = () => "", detail = 100) => {
   const audioElement = document.getElementById("audio_01") || {};
   // help audio node
   const audioCtx = new AudioContext();
   // analyser node gives frequency
   const analyser = audioCtx.createAnalyser();
   // size of data
-  analyser.fftSize = 256; // 2048
+  analyser.fftSize = 2048; // 256; // 2048
   // convert domElm to audioElm
   const source = audioCtx.createMediaElementSource(audioElement);
   source.connect(analyser);
@@ -26,12 +26,12 @@ const GatherAudio = (MAIN = () => "") => {
     analyser.getByteFrequencyData(data);
 
     /** INSET FUNCTION HERE */
-    MAIN(data.slice(0, 100));
+    MAIN(detail ? data.slice(0, detail) : data);
 
     if (pause) {
       audioElement.pause();
     }
-    await pauseHalt();
+    await pauseHalt(undefined, false);
     requestAnimationFrame(animate);
     //audioElement.pause()
   }
