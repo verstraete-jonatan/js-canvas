@@ -29,10 +29,10 @@ const initControls = () => {
 
 const init = async () => {
   initControls();
-  // RESOURCES.minerals.forEach((i) => Shapes.push(new Mineral(i)));
-  // range(5).forEach((i) => Blocks.push(new Block()));
-  // Items.push(new StaticEnemyClass(100, 200));
-  // Items.push(new StaticEnemyClass(-100, -200));
+  RESOURCES.minerals.forEach((i) => Shapes.push(new Mineral(i)));
+  range(5).forEach((i) => Blocks.push(new Block()));
+  Items.push(new StaticEnemyClass(100, 200));
+  Items.push(new StaticEnemyClass(-100, -200));
 
   Items.push(new TrackingEnemyClass(300, 0));
 

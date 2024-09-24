@@ -101,8 +101,7 @@ class Branch {
     }
 
     const dis = 10; //rFloat(10);
-    const R = (this.depth + rFloat(this.angle)) / (10 / (this.depth * 2));
-    const minR = Math.max(0, -R);
+    const R = (this.depth + rFloat(this.angle)) / (5 / this.depth);
     this.x += dis * cos(rFloat(-R, R));
     this.y += dis * sin(rFloat(-R, R));
     this.z += dis * sin(rFloat(-R, R));
