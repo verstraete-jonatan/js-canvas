@@ -5,7 +5,7 @@ const sets = {
 };
 
 const detail = 10;
-let amp = 100;
+let amp = 140;
 let freq = -20000.0042;
 let iterations = 0;
 

@@ -1,11 +1,6 @@
-let OG = 0;
-const rInt = (n) => {
-  noise((n + ++OG) * 100);
-};
-
 const aliveGrid = new Set();
 const SCALE = 20;
-const MAP_SIZE = 50; // Reduced for performance in 3D
+const MAP_SIZE = 30; // Reduced for performance in 3D
 
 // Init preset in 3D
 (() => {
@@ -33,33 +28,40 @@ const MAP_SIZE = 50; // Reduced for performance in 3D
 
 // Check if a cell is alive or dead based on neighbors in 3D
 const checkAlive = (x, y, z) => {
-  const key = String([x, y, z]);
-  const neighbors = [];
+  let aliveNeighbors = 0;
 
   // Find 26 neighbors in 3D space
   for (let dx = -1; dx <= 1; dx++) {
     for (let dy = -1; dy <= 1; dy++) {
       for (let dz = -1; dz <= 1; dz++) {
-        if (dx !== 0 || dy !== 0 || dz !== 0) {
-          neighbors.push([x + dx, y + dy, z + dz]);
+        if (dx || dy || dz) {
+          aliveGrid.has(String([x + dx, y + dy, z + dz])) && aliveNeighbors++;
         }
       }
     }
   }
 
-  const aliveNeighbors = neighbors
-    .map((i) => aliveGrid.has(String(i)))
-    .filter(Boolean).length;
+  const key = String([x, y, z]);
 
-  const isAlive = aliveGrid.has(key);
+  // Math.round((3 / 8) * 26)
 
-  if (isAlive) {
-    if (aliveNeighbors < 2 || aliveNeighbors > 3) {
-      aliveGrid.delete(key); // Dies due to under/overpopulation
+  if (aliveGrid.has(key)) {
+    if (aliveNeighbors < 6.5 || aliveNeighbors > 9.75) {
+      aliveGrid.delete(key);
     }
-  } else if (aliveNeighbors === 3) {
-    aliveGrid.add(key); // A new cell is born
+  } else {
+    if ([5, 7, 8, 10, 11, 12].includes(aliveNeighbors)) {
+      aliveGrid.add(key);
+    }
   }
+
+  // if (isAlive) {
+  //   if (aliveNeighbors < 6.5 || aliveNeighbors > 3) {
+  //     aliveGrid.delete(key); // Dies due to under/overpopulation
+  //   }
+  // } else if (aliveNeighbors === 3) {
+  //   aliveGrid.add(key); // A new cell is born
+  // }
 };
 
 function init() {
@@ -70,7 +72,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
   camera();
   init();
-  frameRate(20); // Lowered for performance
+  // frameRate(1);
 }
 
 function draw() {
@@ -84,6 +86,16 @@ function draw() {
       }
     }
   }
+
+  const sm2 = (SCALE * MAP_SIZE) / 2;
+  translate(-sm2, -sm2, -sm2);
+
+  push();
+  translate(sm2 - SCALE / 2, sm2 - SCALE / 2, sm2 - SCALE / 2);
+  stroke(255);
+  noFill();
+  box(SCALE * MAP_SIZE);
+  pop();
 
   // Draw the alive cells as cubes
   [...aliveGrid.values()].forEach((v, i, t) => {
