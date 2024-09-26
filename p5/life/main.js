@@ -1,66 +1,104 @@
-const aliveGrid = new Set();
-const SCALE = 20;
-const MAP_SIZE = 30; // Reduced for performance in 3D
+const grid = new Map();
+const SCALE = 30;
+const DETAIL = 15; // Reduced for performance in 3D
 
-// Init preset in 3D
-(() => {
-  const x = 0;
-  const y = 0;
-  const z = 0;
+const cubeIds = [];
 
-  // Example of a 3D glider
-  aliveGrid.add(String([x, y, z]));
-  aliveGrid.add(String([x + 1, y, z]));
-  aliveGrid.add(String([x + 2, y, z]));
-  aliveGrid.add(String([x + 2, y + 1, z]));
-  aliveGrid.add(String([x + 2, y + 2, z]));
-  aliveGrid.add(String([x + 2, y, z + 1]));
-  aliveGrid.add(String([x + 1, y, z + 1]));
+for (let x = 0; x < DETAIL; x++) {
+  for (let y = 0; y < DETAIL; y++) {
+    for (let z = 0; z < DETAIL; z++) {
+      cubeIds.push([x, y, z]);
+    }
+  }
+}
 
-  aliveGrid.add(String([x, y, z + 1]));
-  aliveGrid.add(String([x + 1, y, z + 1]));
-  aliveGrid.add(String([x + 2, y, z + 1]));
-  aliveGrid.add(String([x + 2, y + 1, z + 1]));
-  aliveGrid.add(String([x + 2, y + 2, z + 1]));
-  aliveGrid.add(String([x + 2, y, z + 1 + 1]));
-  aliveGrid.add(String([x + 1, y, z + 1 + 1]));
-})();
+const dNeighbors = [];
 
-// Check if a cell is alive or dead based on neighbors in 3D
-const checkAlive = (x, y, z) => {
-  let aliveNeighbors = 0;
-
-  // Find 26 neighbors in 3D space
-  for (let dx = -1; dx <= 1; dx++) {
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dz = -1; dz <= 1; dz++) {
-        if (dx || dy || dz) {
-          aliveGrid.has(String([x + dx, y + dy, z + dz])) && aliveNeighbors++;
-        }
+for (let dx = -1; dx <= 1; dx++) {
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dz = -1; dz <= 1; dz++) {
+      if (dx || dy || dz) {
+        dNeighbors.push([dx, dy, dz]);
       }
     }
   }
+}
 
+// Init preset in 3D
+(() => {
+  const _x = 0;
+  const _y = 0;
+  const _z = 0;
+
+  const pts = [
+    [0, 0, 0],
+    [1, 0, 0],
+    [2, 0, 0],
+    [2, 1, 0],
+    [2, 2, 0],
+    [2, 0, 1],
+    [1, 0, 1],
+
+    [0, 0, 1],
+    [1, 1, 1],
+    [2, 1, 1],
+    [2, 1, 1],
+    [2, 2, 1],
+    [2, 1, 2],
+    [1, 1, 2],
+  ];
+  for (const [x, y, z] of pts) {
+    grid.set(String([_x + x, _y + y, _z + z]), true);
+  }
+})();
+
+const CACHE = {
+  neighbours: new Map(),
+};
+
+const checkAlive = (x, y, z) => {
   const key = String([x, y, z]);
+  let nrNeighbours = 0;
 
-  // Math.round((3 / 8) * 26)
+  // if(CACHE.neighbours.has(key)) {
 
-  if (aliveGrid.has(key)) {
-    if (aliveNeighbors < 6.5 || aliveNeighbors > 9.75) {
-      aliveGrid.delete(key);
-    }
-  } else {
-    if ([5, 7, 8, 10, 11, 12].includes(aliveNeighbors)) {
-      aliveGrid.add(key);
+  // }
+
+  for (const [dx, dy, dz] of dNeighbors) {
+    if (grid.get(String([x + dx, y + dy, z + dz]))) {
+      nrNeighbours++;
     }
   }
 
+  // by adding an include of multiple values, the amount of checks make a cell 'dead' should keep the same ratio of 2-1, so should have 6 checks for 3 includes.
+
+  const smallerDie = 6;
+  const greaterDie = 11;
+  const equalLive = [7, 8, 9];
+
+  if (grid.get(key) === true) {
+    if (nrNeighbours < smallerDie || nrNeighbours > greaterDie) {
+      grid.set(key, false);
+    }
+  } else if (equalLive.includes(nrNeighbours)) {
+    grid.set(key, true);
+  }
+  return;
+
+  if (isAlive) {
+    if (aliveNeighbors < 2 || aliveNeighbors > 3) {
+      aliveGrid.delete(key); // Dies due to under/overpopulation
+    }
+  } else if (aliveNeighbors === 3) {
+    aliveGrid.add(key); // A new cell is born
+  }
+
   // if (isAlive) {
-  //   if (aliveNeighbors < 6.5 || aliveNeighbors > 3) {
-  //     aliveGrid.delete(key); // Dies due to under/overpopulation
+  //   if (nrNeighbours < 6.5 || nrNeighbours > 3) {
+  //     grid.delete(key); // Dies due to under/overpopulation
   //   }
-  // } else if (aliveNeighbors === 3) {
-  //   aliveGrid.add(key); // A new cell is born
+  // } else if (nrNeighbours === 3) {
+  //   grid.set(key); // A new cell is bo, truern
   // }
 };
 
@@ -78,35 +116,43 @@ function setup() {
 function draw() {
   lights();
   background(0);
+  orbitControl(5, 5, 0.1);
 
-  for (let x = 0; x < MAP_SIZE; x++) {
-    for (let y = 0; y < MAP_SIZE; y++) {
-      for (let z = 0; z < MAP_SIZE; z++) {
-        checkAlive(x, y, z);
-      }
-    }
+  for (const [x, y, z] of cubeIds) {
+    checkAlive(x, y, z);
   }
 
-  const sm2 = (SCALE * MAP_SIZE) / 2;
+  // global translate to center of orientation
+  const sm2 = (SCALE * DETAIL) / 2;
   translate(-sm2, -sm2, -sm2);
 
   push();
   translate(sm2 - SCALE / 2, sm2 - SCALE / 2, sm2 - SCALE / 2);
   stroke(255);
   noFill();
-  box(SCALE * MAP_SIZE);
+  // box(SCALE * DETAIL);
+  box(SCALE * DETAIL * 2);
+  box(SCALE * DETAIL * 4);
   pop();
 
-  // Draw the alive cells as cubes
-  [...aliveGrid.values()].forEach((v, i, t) => {
-    const [x, y, z] = v.split(",").map(Number);
+  // main draw
+  if (![...grid.values()].some(Boolean)) {
+    fill("red");
+    translate(sm2, sm2, sm2);
+    box(SCALE * DETAIL);
 
-    fill((255 / t.length) * i);
-    push();
-    translate(x * SCALE, y * SCALE, z * SCALE);
-    box(SCALE * 0.8); // Draw a cube at the (x, y, z) location
-    pop();
-  });
+    return;
+  }
 
-  orbitControl(5, 5, 0.1);
+  let i = 0;
+  for (const [x, y, z] of cubeIds) {
+    if (grid.get(String([x, y, z]))) {
+      fill(10 + (255 / cubeIds.length) * i, 200);
+      push();
+      translate(x * SCALE, y * SCALE, z * SCALE);
+      box(SCALE * 0.8); // Draw a cube at the (x, y, z) location
+      pop();
+      i++;
+    }
+  }
 }
