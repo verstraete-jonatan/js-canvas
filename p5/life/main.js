@@ -1,6 +1,6 @@
 const grid = new Map();
-const SCALE = 30;
-const DETAIL = 35; // Reduced for performance in 3D
+const SCALE = 12;
+const DETAIL = 30; // Reduced for performance in 3D
 
 const cubeIds = [];
 
@@ -24,6 +24,12 @@ for (let dx = -1; dx <= 1; dx++) {
   }
 }
 
+const sm = SCALE * DETAIL;
+const sm2 = sm / 2;
+const sm3 = sm2 - SCALE / 2;
+const smCol = 255 / DETAIL;
+
+const ffs = 0;
 // Init preset in 3D
 (() => {
   const _x = 0;
@@ -79,21 +85,25 @@ const checkAlive = ([x, y, z]) => {
     CACHE.neighbours.set(key, keys);
   }
 
-  // const tt =
-  //   (grid.get(key) && [2, 3, 4, 5, 6].includes(nrNeighbours)) ||
-  //   (grid.get(key) && nrNeighbours < 70);
-  // // grid.set(key, [4, 6].includes(nrNeighbours));
-  // grid.set(key, tt);
+  let isAlive = grid.get(key) ?? false;
 
-  let isAlive = grid.get(key);
-
-  if (isAlive === false) {
-    isAlive = [5, 6, 7, 8].includes(nrNeighbours);
-  } else if (nrNeighbours > 7 || nrNeighbours < 3) {
-    isAlive = false;
+  if (isAlive) {
+    if (nrNeighbours < 3 || nrNeighbours > 6) {
+      isAlive = false;
+    }
+  } else if ([, 5].includes(nrNeighbours)) {
+    isAlive = true;
   }
-  grid.set(key, isAlive);
 
+  // if (isAlive) {
+  //   isAlive = Math.random() > 0.1;
+  // }
+
+  // if (!isAlive) {
+  //   isAlive = [, 5, 6, 7].includes(nrNeighbours);
+  // } else if (nrNeighbours > 12 || nrNeighbours < 4) {
+  //   isAlive = false;
+  // }
   return isAlive;
 
   // by adding an include of multiple values, the amount of checks make a cell 'dead' should keep the same ratio of 2-1, so should have 6 checks for 3 includes.
@@ -136,6 +146,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
   camera();
   init();
+  // noStroke();
   // frameRate(1);
 }
 
@@ -145,43 +156,39 @@ function draw() {
   orbitControl(5, 5, 0.1);
 
   const aliveCubes = [];
-  for (const c of cubeIds) {
-    if (checkAlive(c)) {
-      aliveCubes.push(c);
+  const deadCubes = [];
+
+  for (const n of cubeIds) {
+    if (checkAlive(n)) {
+      aliveCubes.push(n);
+    } else {
+      deadCubes.push(n);
     }
   }
 
   // global translate to center of orientation
-  const sm2 = (SCALE * DETAIL) / 2;
   translate(-sm2, -sm2, -sm2);
 
   push();
-  translate(sm2 - SCALE / 2, sm2 - SCALE / 2, sm2 - SCALE / 2);
+  translate(sm3, sm3, sm3);
   stroke(255);
   noFill();
-  // box(SCALE * DETAIL);
-  box(SCALE * DETAIL * 2);
-  box(SCALE * DETAIL * 4);
+  box(SCALE * DETAIL);
+  // box(SCALE * DETAIL * 2);
+  // box(SCALE * DETAIL * 4);
   pop();
 
-  // main draw
-  // if (![...grid.values()].some(Boolean)) {
-  //   fill("red");
-  //   translate(sm2, sm2, sm2);
-  //   box(SCALE * DETAIL);
+  for (const n of deadCubes) {
+    grid.set(String(n), false);
+  }
 
-  //   return;
-  // }
-
-  let i = 0;
   for (const [x, y, z] of aliveCubes) {
-    if (grid.get(String([x, y, z]))) {
-      // fill(10 + (255 / cubeIds.length) * i, 200);
-      push();
-      translate(x * SCALE, y * SCALE, z * SCALE);
-      box(SCALE * 0.8); // Draw a cube at the (x, y, z) location
-      pop();
-      i++;
-    }
+    grid.set(String([x, y, z]), true);
+
+    push();
+    // fill(x * smCol, y * smCol, z * smCol);
+    translate(x * SCALE, y * SCALE, z * SCALE);
+    box(SCALE * 0.8);
+    pop();
   }
 }

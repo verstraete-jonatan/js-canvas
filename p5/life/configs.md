@@ -49,4 +49,38 @@ if (grid.get(key) === false) {
 } else if (nrNeighbours > 5 || nrNeighbours < 3) {
   grid.set(key, false);
 }
+
+// this other configuration, although exploded, gives us the first ever evolving structure, although the evolving is relatively small and chaotic
+let isAlive = grid.get(key);
+
+if (!isAlive) {
+  isAlive = [, 5, 6].includes(nrNeighbours);
+} else if (nrNeighbours > 11 || nrNeighbours < 6) {
+  isAlive = false;
+}
+
+// this version completely exploded, yet on 3 spots if gives us an infinite repeating process, similar to the original conway loops
+if (!isAlive) {
+  isAlive = [, 5, 6].includes(nrNeighbours);
+} else if (nrNeighbours > 7 || nrNeighbours < 4) {
+  isAlive = false;
+}
+
+//this seems lke the slowest growing exploded version so far, but thats probably because of the `nrNeighbours > 7` and ` 9].includes(nrNeighbours)` conflicting
+// which is maybe the way to go?
+if (isAlive) {
+  if (nrNeighbours < 4 || nrNeighbours > 7) {
+    isAlive = false;
+  }
+} else if ([, 5, 9].includes(nrNeighbours)) {
+  isAlive = true;
+}
+// with similar results, but less margins between numbers
+if (isAlive) {
+  if (nrNeighbours < 3 || nrNeighbours > 6) {
+    isAlive = false;
+  }
+} else if ([, 5].includes(nrNeighbours)) {
+  isAlive = true;
+}
 ```
