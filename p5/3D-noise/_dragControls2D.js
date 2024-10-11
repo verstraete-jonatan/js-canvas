@@ -12,10 +12,14 @@ let dragging = false;
 let isZooming = false;
 
 let isOrbitMode = true;
+let canSeedNoise = true;
 
 document.addEventListener("keydown", ({ key }) => {
-  if (key === "m") {
+  if (key === "a") {
     isOrbitMode = !isOrbitMode;
+  }
+  if (key == "z") {
+    canSeedNoise = !canSeedNoise;
   }
 });
 

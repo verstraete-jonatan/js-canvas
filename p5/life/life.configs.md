@@ -80,7 +80,26 @@ if (isAlive) {
   if (nrNeighbours < 3 || nrNeighbours > 6) {
     isAlive = false;
   }
-} else if ([, 5].includes(nrNeighbours)) {
+} else if (nrNeighbours === 5) {
+  isAlive = true;
+}
+// or even more
+if (isAlive) {
+  if (nrNeighbours < 3 || nrNeighbours > 5) {
+    isAlive = false;
+  }
+} else if (nrNeighbours === 4) {
+  isAlive = true;
+}
+
+// gives us a brief moment of life that stops, but oes evolve
+// moving this configuration more to the center, gives us a still exploding but very much slowly evolving structure
+// but there is still seomthig not right, maybe the whole updating-after-all-calculations isn't the right apporach
+if (isAlive) {
+  if (nrNeighbours < 4 || nrNeighbours > 6) {
+    isAlive = false;
+  }
+} else if (nrNeighbours === 5) {
   isAlive = true;
 }
 ```

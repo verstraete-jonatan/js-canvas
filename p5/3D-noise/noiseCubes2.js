@@ -1,6 +1,6 @@
 const grid = new Map();
 const SCALE = 10;
-const DETAIL = 80;
+const DETAIL = 40;
 
 const sm = SCALE * DETAIL;
 const sm2 = sm / 2;
@@ -27,7 +27,6 @@ const noissse = ([x, y, z]) =>
 
 const getActiveCubes = () => {
   const aliveCubes = [];
-
   for (const n of cubeIds) {
     const nn = noissse(n);
     if (nn > 0.5 && nn < 0.6) {
@@ -39,13 +38,9 @@ const getActiveCubes = () => {
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
-  // camera();
   noStroke();
   noiseSeed(10);
-
   // frameRate(1);
-
-  // drag controls
 }
 
 let panMode = true;
@@ -56,6 +51,9 @@ function draw() {
 
   if (isOrbitMode) {
     orbitControl(5, 5, 0.1);
+  }
+  if (canSeedNoise) {
+    noiseOff += 0.2;
   }
   // global translate to center of orientation
   translate(-sm2, -sm2, -sm2);
@@ -78,11 +76,9 @@ function draw() {
 
   for (const [x, y, z] of getActiveCubes()) {
     push();
-    fill(x * smCol, y * smCol, z * smCol, 150);
+    fill(x * smCol, y * smCol, z * smCol, 200);
     translate(x * SCALE + offsetX, y * SCALE + offsetY, z * SCALE + offsetZ);
     box(SCALE);
     pop();
   }
-
-  noiseOff += 0.2;
 }

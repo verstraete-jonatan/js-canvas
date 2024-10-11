@@ -1,5 +1,5 @@
 const grid = new Map();
-const SCALE = 12;
+const SCALE = 15;
 const DETAIL = 30; // Reduced for performance in 3D
 
 const cubeIds = [];
@@ -32,9 +32,9 @@ const smCol = 255 / DETAIL;
 const ffs = 0;
 // Init preset in 3D
 (() => {
-  const _x = 0;
-  const _y = 0;
-  const _z = 0;
+  const _x = 8;
+  const _y = 8;
+  const _z = 8;
 
   const pts = [
     [0, 0, 0],
@@ -65,6 +65,7 @@ const CACHE = {
 const checkAlive = ([x, y, z]) => {
   const key = String([x, y, z]);
   let nrNeighbours = 0;
+  // return Boolean(grid.get(key));
 
   if (CACHE.neighbours.has(key)) {
     for (const k of CACHE.neighbours.get(key)) {
@@ -88,54 +89,14 @@ const checkAlive = ([x, y, z]) => {
   let isAlive = grid.get(key) ?? false;
 
   if (isAlive) {
-    if (nrNeighbours < 3 || nrNeighbours > 6) {
+    if (nrNeighbours < 4 || nrNeighbours > 6) {
       isAlive = false;
     }
-  } else if ([, 5].includes(nrNeighbours)) {
+  } else if (nrNeighbours === 5) {
     isAlive = true;
   }
 
-  // if (isAlive) {
-  //   isAlive = Math.random() > 0.1;
-  // }
-
-  // if (!isAlive) {
-  //   isAlive = [, 5, 6, 7].includes(nrNeighbours);
-  // } else if (nrNeighbours > 12 || nrNeighbours < 4) {
-  //   isAlive = false;
-  // }
   return isAlive;
-
-  // by adding an include of multiple values, the amount of checks make a cell 'dead' should keep the same ratio of 2-1, so should have 6 checks for 3 includes.
-
-  const smallerDie = 5;
-  const greaterDie = 11;
-  const equalLive = [6, 7];
-
-  if (grid.get(key) === true) {
-    if (nrNeighbours < smallerDie || nrNeighbours > greaterDie) {
-      grid.set(key, false);
-    }
-  } else if (equalLive.includes(nrNeighbours)) {
-    grid.set(key, true);
-  }
-  return;
-
-  if (isAlive) {
-    if (aliveNeighbors < 2 || aliveNeighbors > 3) {
-      aliveGrid.delete(key); // Dies due to under/overpopulation
-    }
-  } else if (aliveNeighbors === 3) {
-    aliveGrid.add(key); // A new cell is born
-  }
-
-  // if (isAlive) {
-  //   if (nrNeighbours < 6.5 || nrNeighbours > 3) {
-  //     grid.delete(key); // Dies due to under/overpopulation
-  //   }
-  // } else if (nrNeighbours === 3) {
-  //   grid.set(key); // A new cell is bo, truern
-  // }
 };
 
 function init() {
@@ -147,7 +108,7 @@ function setup() {
   camera();
   init();
   // noStroke();
-  // frameRate(1);
+  // frameRate(2);
 }
 
 function draw() {
@@ -186,7 +147,7 @@ function draw() {
     grid.set(String([x, y, z]), true);
 
     push();
-    // fill(x * smCol, y * smCol, z * smCol);
+    fill(x * smCol, y * smCol, z * smCol);
     translate(x * SCALE, y * SCALE, z * SCALE);
     box(SCALE * 0.8);
     pop();
