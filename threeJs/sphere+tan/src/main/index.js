@@ -4,7 +4,7 @@ import { Canvas, extend } from '@react-three/fiber'
 import { shaderMaterial, CameraControls } from '@react-three/drei'
 import niceColors from 'nice-color-palettes'
 
-import { niceNoise } from './niceNoise'
+import { niceNoise } from '../lib/niceNoise'
 
 const PI2 = Math.PI * 2
 const detail = 150
@@ -25,12 +25,13 @@ const allColors = niceColors.flat()
 // TODO: whatever function i use, noise always returns 0
 const noise = (a, b) => niceNoise.simplex3(a, b)
 const mapNum = (n, minInput, maxInput, minOutput, maxOutput) => ((n - minInput) * (maxOutput - minOutput)) / (maxInput - minInput) + minOutput
-const hsl = (i) => `hsl(${mapNum(i, 0, nrBoxes, 50, 150).toFixed()}, 50%, 50%)`
+const hsl = (i) => `hsl(${mapNum(i, 0, nrBoxes, 30, 100).toFixed()}, 40%, 50%)`
 
 const randomColor = () => allColors[Math.floor(Math.random() * allColors.length)]
 
 const getColor = (i = 0) => {
   // do any color function here
+  // return randomColor()
   return hsl(i)
 }
 
@@ -116,20 +117,22 @@ function Boxes({ size = [0.15, 0.15, 0.15], ...props }) {
       <instancedMesh ref={mesh} args={[null, null, nrBoxes]}>
         <boxGeometry args={size}>
           <instancedBufferAttribute attach="attributes-color" args={[colors, 3]} />
+          {/* <meshEdgesMaterial /> */}
         </boxGeometry>
         <meshLambertMaterial vertexColors toneMapped={true} />
       </instancedMesh>
       <instancedMesh ref={outlines} args={[null, null, nrBoxes]}>
+        <meshStandardMaterial metalness={0.2} roughness={1} />
+
         <meshEdgesMaterial
           transparent={true}
           polygonOffset
           polygonOffsetFactor={-10}
           size={size}
           color="white"
-          thickness={0}
-          // thickness={0.0001}
-
-          smoothness={0.005}
+          // thickness={0}
+          thickness={0.0001}
+          smoothness={0}
         />
       </instancedMesh>
     </group>
