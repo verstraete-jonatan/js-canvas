@@ -30,6 +30,7 @@ var t = {
   ctx: null,
 };
 t.ctx = t.canvas.getContext("2d");
+window.ctx = t.ctx;
 
 async function videoDetectLoop() {
   const face = humanInstance.result.face[0];

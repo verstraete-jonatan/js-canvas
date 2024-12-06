@@ -216,6 +216,7 @@ async function R() {
   // console.warn({ result: s.result, a });
   // return;
   window.mesh = a.face[0]?.mesh ?? [];
+
   s.draw.canvas(t.video, t.canvas), await s.draw.all(t.canvas, a);
   let n = s.now();
   if (
