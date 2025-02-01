@@ -1,0 +1,41 @@
+{
+  "name": "x",
+  "version": "1.0.0",
+  "description": "x",
+  "main": "src/index.tsx",
+  "dependencies": {
+    "@react-three/drei": "^9.114.6",
+    "@react-three/fiber": "^8.17.10",
+    "@types/three": "^0.169.0",
+    "framer-motion": "^11.11.9",
+    "lamina": "^1.1.23",
+    "leva": "^0.9.35",
+    "react": "^18.3.1",
+    "react-audio-analyser": "^1.0.0",
+    "react-dom": "18.2.0",
+    "react-scripts": "5.0.1",
+    "resonance-audio": "^1.0.0",
+    "three": "^0.169.0",
+    "tone": "^15.0.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
