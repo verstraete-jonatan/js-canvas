@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Depth Visualization</title>
+  </head>
+  <body>
+    <canvas id="mainCanvas" width="500" height="500"></canvas>
+    <canvas id="depthCanvas" width="500" height="500"></canvas>
+    <script>
+      class Point {
+        constructor(x, y, z) {
+          this.x = x;
+          this.y = y;
+          this.z = z;
+        }
+      }
+
+      class Triangle {
+        constructor(p1, p2, p3) {
+          this.p1 = p1;
+          this.p2 = p2;
+          this.p3 = p3;
+          this.steepness = this.calculateSteepness();
+        }
+
+        calculateSteepness() {
+          let d1 = Math.sqrt(
+            Math.pow(this.p2.x - this.p1.x, 2) +
+              Math.pow(this.p2.y - this.p1.y, 2) +
+              Math.pow(this.p2.z - this.p1.z, 2)
+          );
+          let d2 = Math.sqrt(
+            Math.pow(this.p3.x - this.p2.x, 2) +
+              Math.pow(this.p3.y - this.p2.y, 2) +
+              Math.pow(this.p3.z - this.p2.z, 2)
+          );
+          let d3 = Math.sqrt(
+            Math.pow(this.p1.x - this.p3.x, 2) +
+              Math.pow(this.p1.y - this.p3.y, 2) +
+              Math.pow(this.p1.z - this.p3.z, 2)
+          );
+
+          let h1 = Math.abs(this.p1.z - this.p2.z);
+          let h2 = Math.abs(this.p2.z - this.p3.z);
+          let h3 = Math.abs(this.p3.z - this.p1.z);
+
+          let steepness1 = h1 / d1;
+          let steepness2 = h2 / d2;
+          let steepness3 = h3 / d3;
+
+          return (steepness1 + steepness2 + steepness3) / 3;
+        }
+
+        draw(context, color) {
+          context.beginPath();
+          context.moveTo(this.p1.x, this.p1.y);
+          context.lineTo(this.p2.x, this.p2.y);
+          context.lineTo(this.p3.x, this.p3.y);
+          context.closePath();
+          context.fillStyle = color;
+          context.fill();
+        }
+      }
+
+      function interpolateColor(value, min, max) {
+        let ratio = (value - min) / (max - min);
+        let r = Math.floor(255 * ratio);
+        let g = 0;
+        let b = Math.floor(255 * (1 - ratio));
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+
+      function createTriangles(rows, cols, points) {
+        let triangles = [];
+        for (let i = 0; i < rows - 1; i++) {
+          for (let j = 0; j < cols - 1; j++) {
+            let p1 = points[i][j];
+            let p2 = points[i + 1][j];
+            let p3 = points[i][j + 1];
+            let p4 = points[i + 1][j + 1];
+
+            let t1 = new Triangle(p1, p2, p3);
+            let t2 = new Triangle(p2, p4, p3);
+
+            triangles.push(t1);
+            triangles.push(t2);
+          }
+        }
+        return triangles;
+      }
+
+      function drawGrid(context, triangles, isDepthCanvas = false) {
+        let minSteepness = Math.min(...triangles.map((t) => t.steepness));
+        let maxSteepness = Math.max(...triangles.map((t) => t.steepness));
+        for (let triangle of triangles) {
+          let color = isDepthCanvas
+            ? interpolateColor(triangle.steepness, minSteepness, maxSteepness)
+            : "gray";
+          triangle.draw(context, color);
+        }
+      }
+
+      const mainCanvas = document.getElementById("mainCanvas");
+      const depthCanvas = document.getElementById("depthCanvas");
+      const mainContext = mainCanvas.getContext("2d");
+      const depthContext = depthCanvas.getContext("2d");
+
+      const points = [
+        [new Point(50, 50, 1), new Point(150, 50, 2), new Point(250, 50, 3)],
+        [new Point(50, 150, 4), new Point(150, 150, 5), new Point(250, 150, 6)],
+        [new Point(50, 250, 7), new Point(150, 250, 8), new Point(250, 250, 9)],
+      ];
+
+      const triangles = createTriangles(3, 3, points);
+
+      drawGrid(mainContext, triangles);
+      drawGrid(depthContext, triangles, true);
+
+      mainCanvas.addEventListener("mousemove", function (event) {
+        const rect = mainCanvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const imageData = depthContext.getImageData(x, y, 1, 1).data;
+        const r = imageData[0];
+        const g = imageData[1];
+        const b = imageData[2];
+        const steepness = r / 255;
+
+        const color = `hsl(${steepness}, 50%, 50%))`;
+        document.body.style.cursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="16" fill="${color}" /></svg>') 16 16, auto`;
+      });
+    </script>
+  </body>
+</html>

@@ -53,22 +53,6 @@ const body = document.querySelector("body");
 let defaultEvents = true;
 
 const hexTable = Object.freeze({
-  f: 15,
-  e: 14,
-  d: 13,
-  c: 12,
-  b: 11,
-  a: 10,
-  9: 9,
-  8: 8,
-  7: 7,
-  6: 6,
-  5: 5,
-  4: 4,
-  3: 3,
-  2: 2,
-  1: 1,
-  0: 0,
   15: "f",
   14: "e",
   13: "d",
@@ -85,6 +69,22 @@ const hexTable = Object.freeze({
   2: "2",
   1: "1",
   0: "0",
+  f: 15,
+  e: 14,
+  d: 13,
+  c: 12,
+  b: 11,
+  a: 10,
+  9: 9,
+  8: 8,
+  7: 7,
+  6: 6,
+  5: 5,
+  4: 4,
+  3: 3,
+  2: 2,
+  1: 1,
+  0: 0,
 });
 
 alphabet = [
@@ -187,7 +187,9 @@ const pathTo = (distance = 0, name = "assets") => {
  * */
 
 const cnv =
-  document.querySelector("canvas") || document.createElement("canvas");
+  document.getElementById("canvas_01") ||
+  document.querySelector("canvas") ||
+  document.createElement("canvas");
 const ctx = cnv.getContext("2d");
 
 cnv.height = window.innerHeight;
@@ -673,6 +675,29 @@ function graphXY(
   );
 }
 
+function simpleGraph(
+  arr,
+  { stroke = "green", lineWidth = 5, margin = 0 } = {}
+) {
+  const sx = Xmax / arr.length - margin;
+  const sy = Ymax / Math.max(...arr);
+
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = lineWidth;
+
+  ctx.beginPath();
+  for (let i = 0; i < arr.length; i++) {
+    let a = arr[i];
+    let b = arr[i + 1] || a;
+
+    let x = margin + i * sx;
+    let y = margin + b * sy;
+    ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.closePath();
+}
+
 function contrastImage(imageData, contrast) {
   // contrast as an integer percent
   let data = imageData.data; // original array modified, but canvas not updated
@@ -911,8 +936,7 @@ Array.prototype.remove = function (n) {
 };
 
 Array.prototype.rsplice = function (count = 1) {
-  this.splice(0, this.last(1, true) - (count - 1));
-  return this;
+  return this.splice(0, this.last(1, true) - (count - 1));
 };
 
 Array.prototype.scaleBetween = function (scaledMin, scaledMax) {
@@ -928,7 +952,11 @@ Array.prototype.random = function () {
 };
 
 Array.prototype.sum = function () {
-  return this.reduce((t, i) => t + i, 0);
+  let t = 0;
+  for (let i of this) {
+    t += i;
+  }
+  return t; // this.reduce((t, i) => t + i, 0);
 };
 
 Array.prototype.average = function () {
@@ -1094,7 +1122,7 @@ function parseColor(arr) {
   return "#" + res;
 }
 
-function overcount(i, max, min = 0, nullable = true) {
+function overCount(i, max, min = 0, nullable = true) {
   let stopinifnite = 0;
   while (i >= max) {
     stopinifnite++;
@@ -1170,10 +1198,19 @@ function numMax(n, max) {
 }
 
 function range(n = 1, detail = 1) {
-  // return new Array(n)
+  if (n < 0) return nRange(n);
   let res = [];
   for (let i = n < 0 ? n : 0; i < n; i += detail) {
     res.push(+i);
+  }
+  return res;
+}
+
+function nRange(n = 1) {
+  if (n > 0) return range(n);
+  let res = [];
+  for (let i = 0; i > n; i--) {
+    res.push(i);
   }
   return res;
 }
@@ -1489,7 +1526,7 @@ function sCoord(x, y) {
   return `${x};${y}`;
 }
 
-function getNieghboursByDimension(dim = 1, x, y, scale = 1) {
+function getNeighboursByDimension(dim = 1, x, y, scale = 1) {
   const res = [];
   for (let col = -dim; col <= dim; col++) {
     for (let row = -dim; row <= dim; row++) {
@@ -1609,6 +1646,15 @@ function isPointInShape(p, shape) {
   return inside;
 }
 
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 /**
  * -----------------------------
  * Classes, Objects & libs
@@ -1639,6 +1685,14 @@ const incrementer = {
       this[prop] = this.origValues[prop];
     }
   },
+};
+
+const tryAndLog = (n) => {
+  try {
+    n();
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 class Vector extends Array {
@@ -1816,6 +1870,7 @@ const Controls = {
 const Events = {
   keyEvents: new Map(),
   seperator: "$%$",
+  listener: null,
   setKey(key = "", event = () => "", type = "click") {
     this.keyEvents.set(key, event);
   },
@@ -1835,9 +1890,9 @@ const Events = {
     // this.keyEvents.forEach((v, k) => {
     //   const s = k.split(this.seperator)[0];
 
-    window.addEventListener("keydown", (ev) => {
+    this.listener = window.addEventListener("keydown", (ev) => {
       // ev.preventDefault();
-      this.keyEvents.get(ev.key + this.seperator)();
+      this.keyEvents.get(ev.key + this.seperator)?.();
     });
     // });
   },
@@ -1846,41 +1901,42 @@ const Events = {
 window.onload = () => {
   try {
     // init events
-    if (defaultEvents) {
+    defaultEvents &&
       setTimeout(() => {
-        Events.setKeys([
-          [" ", () => (pause = !pause)],
-          ["f", () => toggleFullscreen()],
-          ["r", () => window.location.reload()],
-        ]);
+        if (defaultEvents) {
+          Events.setKeys([
+            [" ", () => (pause = !pause)],
+            ["f", () => toggleFullscreen()],
+            ["r", () => window.location.reload()],
+          ]);
 
-        Events.addClick("#btn_download", () => {
-          const l = document.createElement("a");
-          l.download = "canvas_img.png";
-          l.href = cnv.toDataURL();
-          l.click();
-          l.delete;
+          Events.addClick("#btn_download", () => {
+            const l = document.createElement("a");
+            l.download = "canvas_img.png";
+            l.href = cnv.toDataURL();
+            l.click();
+            l.delete;
+          });
+          Controls.addInfo(
+            "Events: " +
+              [...Events.keyEvents.keys()]
+                .map((i) => i.split(Events.seperator)[0])
+                .join(", ")
+          );
+          Events.listen();
+          setWindowLocation();
+        }
+        window.addEventListener("keydown", (ev) => {
+          // ev.preventDefault();
+          const ek = ev.key;
+          Events.keyEvents.forEach((v, k) => {
+            const s = k.split(Events.seperator)[0];
+            if (ek === s) {
+              v();
+            }
+          });
         });
-        Controls.addInfo(
-          "Events: " +
-            [...Events.keyEvents.keys()]
-              .map((i) => i.split(Events.seperator)[0])
-              .join(", ")
-        );
-        Events.listen();
-        setWindowLocation();
       }, 200);
-    }
-    // window.addEventListener("keydown", (ev) => {
-    //   // ev.preventDefault();
-    //   const ek = ev.key;
-    //   Events.keyEvents.forEach((v, k) => {
-    //     const s = k.split(Events.seperator)[0];
-    //     if (ek === s) {
-    //       v();
-    //     }
-    //   });
-    // });
   } catch (e) {
     textCenter("LOAD Error: " + e.message);
     log(e);

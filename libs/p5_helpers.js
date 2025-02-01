@@ -1,7 +1,8 @@
 const { log, warn, info } = console;
-let pause = false;
+let _pause = false;
 let ctx, cnv;
 let exit = false;
+let enableCustomEvents = true;
 
 const PI = Math.PI;
 const PI2 = Math.PI * 2;
@@ -15,15 +16,15 @@ function sleep(s = 0.1) {
 }
 
 async function sleeping(s = 0.1) {
-  pause = true;
+  _pause = true;
   await sleep(s);
-  pause = false;
+  _pause = false;
 }
 
 window.addEventListener("keydown", (ev) => {
-  if (ev.key === " ") {
-    pause = !pause;
-    if (pause) noLoop();
+  if (enableCustomEvents && ev.key === " ") {
+    _pause = !_pause;
+    if (_pause) noLoop();
     else loop();
   }
 });
@@ -107,7 +108,7 @@ function coords(x, y) {
   return `${x};${y}`;
 }
 
-function overcount(i, max) {
+function overCount(i, max) {
   while (i > max) {
     i -= max;
   }
@@ -168,9 +169,6 @@ const radDeg = function (i, add = false) {
 
 let max = Infinity;
 let min = -Infinity;
-
-// if false, events like key-f=>fullscreen, wont be available
-let defaultEvents = true;
 
 const hexTable = Object.freeze({
   f: 15,
@@ -566,7 +564,7 @@ function parseColor(arr) {
   return "#" + res;
 }
 
-function overcount(i, max, min = 0, nullable = true) {
+function overCount(i, max, min = 0, nullable = true) {
   while (i >= max) {
     if (nullable && i == 0) return i;
     i -= max;
@@ -679,15 +677,15 @@ async function pauseHalt(sl, overlay = true) {
   if (sl) {
     await sleep(sl);
   }
-  if (pause) {
-    if (overlay) overlayDIV.set("=", "overlay-pause", "overlay-fixed");
+  if (_pause) {
+    if (overlay) overlayDIV.set("=", "overlay-_pause", "overlay-fixed");
     //else textCenter("||", 200, "white")
     let timeout = 0;
-    while (pause) {
+    while (_pause) {
       await sleep();
       timeout++;
       if (timeout > 2000) {
-        pause = false;
+        _pause = false;
         if (overlay) {
           overlayDIV.remove();
           overlayDIV.set("TIME-OUT, press r", "overlay-fixed", "red");
@@ -1169,48 +1167,6 @@ const Events = {
       });
     });
   },
-};
-
-window.onload = () => {
-  try {
-    // init events
-    if (defaultEvents) {
-      Events.setKey(" ", () => (pause = !pause));
-      Events.setKey("f", () => toggleFullscreen());
-
-      Events.addClick("#btn_download", () => {
-        const l = document.createElement("a");
-        l.download = "canvas_img.png";
-        l.href = cnv.toDataURL();
-        l.click();
-        l.delete;
-      });
-      setTimeout(() => {
-        Controls.addInfo(
-          "Events: " +
-            [...Events.keyEvents.keys()]
-              .map((i) => i.split(Events.seperator)[0])
-              .join(", ")
-        );
-      }, 200);
-
-      setWindowLocation();
-    }
-
-    window.addEventListener("keydown", (ev) => {
-      ev.preventDefault();
-      const ek = ev.key;
-      Events.keyEvents.forEach((v, k) => {
-        const s = k.split(Events.seperator)[0];
-        if (ek === s) {
-          v();
-        }
-      });
-    });
-  } catch (e) {
-    textCenter("LOAD Error: " + e.message);
-    log(e);
-  }
 };
 
 /**

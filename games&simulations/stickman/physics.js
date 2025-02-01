@@ -33,7 +33,7 @@ function applyPhysics() {
   textCenter(
     `${this.currentPlatform.y}-${currentPlatform}--${this.y}-${Game.ground}`
   );
-  line(0, currentPlatform, Xmax, currentPlatform, "green");
+  rect(0, currentPlatform, Xmax, currentPlatform, "green");
   // textCenter(
   //   JSON.stringify({ acc: this.yAcceleration, vel: this.yVelocity })
   // );

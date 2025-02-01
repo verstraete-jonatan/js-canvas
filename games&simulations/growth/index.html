@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Growth</title>
+    <link rel="stylesheet" href="../../main.css" />
+  </head>
+  <style>
+    #controls {
+      z-index: 999;
+      position: fixed;
+      top: -10%;
+      left: 50%;
+      background-color: white;
+      padding: 0.5rem;
+      width: fit-content;
+    }
+  </style>
+
+  <body>
+    <div id="controls"></div>
+    <div class="centered">
+      <canvas id="canvas_01" width="1200" height="900"></canvas>
+    </div>
+
+    <script src="/setup.js"></script>
+    <script src="/libs/perlin.js"></script>
+    <script src="_conf.js"></script>
+    <script src="_utils.js"></script>
+
+    <script src="class.physics.js"></script>
+    <script src="class.material.js"></script>
+    <script src="class.block.js"></script>
+    <script src="class.projectiles.js"></script>
+
+    <script src="class.effects.js"></script>
+
+    <script src="class.enemy.js"></script>
+    <script src="class.player.js"></script>
+
+    <script src="_main.js"></script>
+  </body>
+</html>

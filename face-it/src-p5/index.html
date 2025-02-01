@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="./faceModel.js" type="module"></script>
+    <script src="/libs/p5.js"></script>
+    <!-- <script src="/libs/p5_helpers.js"></script> -->
+    <script src="animate copy.js"></script>
+    <link rel="stylesheet" href="../../libs/main_p5.css" />
+    <script src="../../p5/niceNoise.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        background: rgb(255, 255, 255);
+        color: white;
+        width: 100vw;
+        height: 100vh;
+      }
+      * {
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute !important;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" style="padding: 8px"></canvas>
+    <canvas id="source" style="padding: 8px"></canvas>
+    <video id="video" playsinline style="display: none"></video>
+  </body>
+</html>

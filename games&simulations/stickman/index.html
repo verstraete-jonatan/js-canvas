@@ -1,57 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Platform</title>
-    <link rel="stylesheet" href="../../main.css">
-</head>
-<style>
+    <link rel="stylesheet" href="../../main.css" />
+  </head>
+  <style>
     @keyframes colorAnimation {
-        0% {
-            background-size: 100%;
-        }
+      0% {
+        background-size: 100%;
+      }
 
-        40% {
-            background-size: 98%;
-        }
+      40% {
+        background-size: 98%;
+      }
 
-        60% {
-            background-size: 97%;
-        }
+      60% {
+        background-size: 97%;
+      }
 
-        80% {
-            background-size: 95%;
-        }
+      80% {
+        background-size: 95%;
+      }
 
-        100% {
-            background-size: 98%;
-        }
+      100% {
+        background-size: 98%;
+      }
     }
 
     #bg-elem {
-        position: fixed;
-        width: 110vw;
-        height: 110vh;
-        top: -5vh;
-        left: -5vw;
-        animation: 3s ease-in-out infinite colorAnimation;
-        /* background: radial-gradient(circle, rgba(255, 0, 0, 0) 0%, rgba(195, 204, 7, 0) 70%, rgba(2, 0, 36, 1) 100%); */
-        transition: all 0.5s;
-        z-index: 9999;
+      position: fixed;
+      width: 110vw;
+      height: 110vh;
+      top: -5vh;
+      left: -5vw;
+      animation: 3s ease-in-out infinite colorAnimation;
+      /* background: radial-gradient(circle, rgba(255, 0, 0, 0) 0%, rgba(195, 204, 7, 0) 70%, rgba(2, 0, 36, 1) 100%); */
+      transition: all 0.5s;
+      z-index: 9999;
     }
 
     body {
-        overflow: hidden;
+      overflow: hidden;
     }
-</style>
+  </style>
 
-<body>
+  <body>
     <div class="centered">
-        <div id="bg-elem"></div>
-        <canvas id="canvas_01" width="1200" height="900"></canvas>
+      <div id="bg-elem"></div>
+      <canvas id="canvas_01" width="1200" height="900"></canvas>
     </div>
 
     <script src="/setup.js"></script>
@@ -63,6 +62,5 @@
     <script src="physics.js"></script>
 
     <script src="main.js"></script>
-</body>
-
+  </body>
 </html>

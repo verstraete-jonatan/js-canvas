@@ -105,7 +105,7 @@ class Effects {
         const a1 = Math.cos(angle) * this.radius * this.circleHeigth;
         const a2 = 300 + Math.sin(angle) * this.radius * this.circleWidth;
 
-        let iSave = overcount(this.i, data.length - 1);
+        let iSave = overCount(this.i, data.length - 1);
 
         iSave -= iSave > 0 ? 1 : 0;
 
@@ -134,7 +134,7 @@ class Effects {
               if (this.movingGradient && x % this.gradientSpeed == 0) {
                 this.currentGradient += 1;
               }
-              ctx.strokeStyle = `hsla(${overcount(
+              ctx.strokeStyle = `hsla(${overCount(
                 i / this.colorModulus + this.currentGradient,
                 this.gradientReachMax
               ).toFixed(0)},${this.saturation}%,50%,${this.transparency})`;

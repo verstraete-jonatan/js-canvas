@@ -103,7 +103,7 @@ async function animate() {
   ctx.stroke();
   points.length = 0;
 
-  deltaAngle += reverse + 1;
+  deltaAngle += reverse + 0.05;
   zoff += 0.02;
   rotation += 0.1;
   //centerRadius += 0.2;

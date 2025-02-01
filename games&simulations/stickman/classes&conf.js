@@ -95,17 +95,23 @@ class PlayerClass {
 
     this.jumpCount = 0;
     this.maxJumpCount = 2;
+
+    this;
   }
   move(direction = undefined) {
     switch (direction) {
       case "up":
         if (
-          this.y <= this.currentPlatform.y &&
-          this.jumpCount < this.maxJumpCount
+          // 190 height??
+          this.y === Game.ground ||
+          (this.y - 190 <= this.currentPlatform.y &&
+            this.jumpCount < this.maxJumpCount)
         ) {
           this.yAcceleration =
             (this.jumpingPower * this.speedY) / (this.jumpCount ? 1.2 : 1);
           this.jumpCount++;
+        } else {
+          alert("-" + JSON.stringify([this.y, this.currentPlatform.y]));
         }
         break;
       case "left":
@@ -203,7 +209,7 @@ class PerlinLine {
   }
   show() {
     // this.y+= 1
-    // this.y = overcount(this.y, Game.ground)
+    // this.y = overCount(this.y, Game.ground)
     let x = -Xmax * 0.1;
     let lx = x;
     let y = this.y + sin(Player.y / 100) * 10;
@@ -277,7 +283,7 @@ class FloatingShape {
     const v = rotateVector(x, y, angle);
 
     triangle(x + v.x, y + v.y, this.size, this.cl, {
-      rotate: overcount(this.rotation, 360),
+      rotate: overCount(this.rotation, 360),
     });
     if (x > Xmax || x < Xmin) this.speed.x *= -1;
     if (y > Game.ground || y < Ymin) this.speed.y *= -1;

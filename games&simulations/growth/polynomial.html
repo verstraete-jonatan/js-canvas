@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Growth</title>
+    <link rel="stylesheet" href="../../main.css" />
+  </head>
+  <style>
+    canvas {
+      width: 100vw;
+      height: 100vh;
+
+    }
+  </style>
+
+  <body>
+    <div id="controls"></div>
+    <div class="centered">
+      <canvas id="canvas_01" width="1200" height="900"></canvas>
+    </div>
+
+    <script src="/setup.js"></script>
+    <script>
+      const angles = [-0.2063061226846501, -0.13745063418482695, -0.07646587317343667, -0.01396938354368693, 0.05108811715264694, 0.11582255702889221, 0.17612846433581275, 0.23247423068338824, 0.2910368137424717]
+
+      const aa = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+
+const polynomialRegression = (series, degree) => {
+  const sum = (arr) => arr.reduce((acc, val) => acc + val, 0);
+
+  const n = series.length;
+  const xValues = [...Array(degree + 1).keys()].map((_, i) => i); // 0 to degree
+  const yValues = series;
+
+  const sumX = sum(xValues);
+  const sumY = sum(yValues);
+
+  const sumXY = xValues.reduce((acc, x, i) => acc + x * yValues[i], 0);
+  const sumX2 = xValues.reduce((acc, x) => acc + x ** 2, 0);
+
+  const a = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX ** 2);
+  const b = (sumY - a * sumX) / n;
+
+  return (x) => a * x + b;
+};
+
+const predictNext = polynomialRegression([...aa], 2); // Adjust the degree as needed
+console.log(predictNext(aa.length)); 
+
+    </script>
+
+</html>

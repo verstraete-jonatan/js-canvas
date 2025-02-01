@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="./faceModel.js" type="module"></script>
+    <script src="./perlin.js"></script>
+    <script src="./animate-3.js" type="module"></script>
+
+    <style>
+      * {
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      #canvas {
+        z-index: 1000000;
+        /* opacity: 0.9; */
+        background: rgb(255, 255, 255);
+      }
+
+      #virtual {
+        z-index: 9999999;
+        opacity: 0.5;
+        display: none;
+      }
+
+      #source,
+      video {
+        opacity: 0;
+      }
+      video {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <canvas id="source"></canvas>
+    <canvas id="virtual"></canvas>
+
+    <video id="video" playsinline></video>
+  </body>
+</html>
