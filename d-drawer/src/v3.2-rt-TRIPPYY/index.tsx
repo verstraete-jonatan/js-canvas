@@ -6,8 +6,8 @@ import { Vector3 } from "three";
 import { MAX_HEIGHT, TIME_SEGMENTS } from "./consts";
 
 // import Main from "./AudioOnly";
-// import Main from "./VersionC";
-import Main from "./versions/VersionC copy 4";
+import Main from "./VersionC";
+// import Main from "./versions/VersionC copy 4";
 
 import "./styles.css";
 

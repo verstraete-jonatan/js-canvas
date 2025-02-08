@@ -13,7 +13,7 @@ const { sin, tan, cos, cosh, sinh, tanh, PI, acos, asin, atan, atan2, hypot } =
   Math;
 
 const goldenRatio = (1 + Math.sqrt(5)) / 2;
-const golderPi2 = 2 * PI * goldenRatio;
+const goldenPi2 = 2 * PI * goldenRatio;
 let og = 0;
 
 const controlsCircle = {
@@ -76,7 +76,7 @@ class SphereX {
   constructor() {
     const getPts = (i: number): [number, number, number] => {
       const phi = acos(1 - (2 * (i + 0.5)) / totalNrPoints);
-      const theta = golderPi2 * i;
+      const theta = goldenPi2 * i;
       return [
         radius * sin(phi) * cos(theta),
         radius * cos(phi),
@@ -146,7 +146,7 @@ const Main = () => {
   const animate = useCallback(
     (i: number) => {
       const phi = acos(1 - (2 * (i + 0.5)) / totalNrPoints);
-      const theta = golderPi2 * i * (og / ogInc);
+      const theta = goldenPi2 * i * (og / ogInc);
 
       let x = radius * sin(phi) * cos(theta);
       let y = radius * cos(phi);

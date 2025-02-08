@@ -12,7 +12,7 @@ const matrix = new Matrix4();
 const { sin, tan, cos, cosh, sinh, tanh, PI, acos, asin } = Math;
 
 const goldenRatio = (1 + Math.sqrt(5)) / 2;
-const golderPi2 = 2 * PI * goldenRatio;
+const goldenPi2 = 2 * PI * goldenRatio;
 let og = 0;
 
 const controls = {
@@ -62,7 +62,7 @@ const Main = () => {
   const animate = useCallback(
     (i: number) => {
       const phi = acos(1 - (2 * (i + 0.5)) / totalNrPoints);
-      const theta = golderPi2 * i * (og / ogInc);
+      const theta = goldenPi2 * i * (og / ogInc);
 
       let x = radius * sin(phi) * cos(theta);
       let y = radius * cos(phi);

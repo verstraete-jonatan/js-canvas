@@ -111,7 +111,7 @@ const Main = () => {
 
   useFrame(({ camera, clock }) => {
     if (!paused) {
-      og += 0.0001;
+      // og += 0.0001;
     }
     if (clock.elapsedTime === 0) {
       camera.position.set(

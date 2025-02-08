@@ -7,7 +7,6 @@ import {
   BoxGeometry,
   Matrix4,
   Camera,
-  Color,
 } from "three";
 import { useControls } from "leva";
 import { bufferSize, useAudioData } from "./useAudioData";
@@ -62,16 +61,17 @@ const Main = () => {
 
   const { skew, spreadY, spreadX, dotsDistance, musicEffect } =
     useControls(controls);
-  const { frequencyData } = useAudioData("waves", paused.current);
+  const { frequencyData } = useAudioData("eagle", false);
 
   const animate = useCallback(
     (i: number) => {
-      const relI = Math.round((bufferSize / totalNrPoints) * i); // i % (frequencyData.length - 1)
-      // const audioVal = frequencyData[relI] * musicEffect + og;
-
       const audioVal =
         frequencyData[i % (frequencyData.length - 1)] * musicEffect + og;
-      // const frequency =
+
+      // const relI = Math.round((bufferSize / totalNrPoints) * i); // i % (frequencyData.length - 1)
+      // const audioVal = frequencyData[relI] * musicEffect + og;
+
+      // const audioVal =
       //   i * tan((i + og) / totalNrPoints) * 1000 * musicEffect + og;
 
       const phi = acos(1 - (2 * (i + 0.5)) / totalNrPoints) + audioVal;
@@ -100,11 +100,13 @@ const Main = () => {
         sin((i / totalNrPoints) * spreadX) +
         cos((i / totalNrPoints) * spreadY);
 
-      // const hslCol = Math.abs(Math.sin(_x / _y / _z / og)) * 360
-      const hslCol = Math.round((360 / totalNrPoints) * i);
+      /** V5: x stuf. Not sure if its any good tho */
+      // x *= tanh((_y * skew) / (_z * spreadX));
+      // y *= tanh((_z * skew) / (_x * spreadX));
+      // z *= tanh((_x * skew) / (_y * spreadX));
 
-      meshRef.current.setColorAt(i, new Color(`hsl(${hslCol}, 80%, 50%)`));
-      meshRef.current.setMatrixAt(i, matrix.makeTranslation(x, y, z));
+      matrix.makeTranslation(x, y, z);
+      meshRef.current.setMatrixAt(i, matrix);
     },
     [
       skew,
@@ -122,8 +124,8 @@ const Main = () => {
       for (let i = 0; i < totalNrPoints; i++) {
         animate(i);
       }
+
       meshRef.current.instanceMatrix.needsUpdate = true;
-      meshRef.current.instanceColor.needsUpdate = true;
     }
   }, [meshRef.current, animate]);
 
@@ -171,14 +173,14 @@ const Main = () => {
     const ev = ({ key }: KeyboardEvent) => {
       if (key === " ") {
         paused.current = !paused.current;
-        // console.log({
-        //   skew,
-        //   spreadY,
-        //   spreadX,
-        //   dotsDistance,
-        //   musicEffect,
-        //   camera: (window as any).camera,
-        // });
+        console.log({
+          skew,
+          spreadY,
+          spreadX,
+          dotsDistance,
+          musicEffect,
+          camera: (window as any).camera,
+        });
       }
     };
     addEventListener("keydown", ev);

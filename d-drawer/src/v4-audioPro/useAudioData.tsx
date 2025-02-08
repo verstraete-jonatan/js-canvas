@@ -13,7 +13,8 @@ let analyzer: AnalyserNode | null,
 
 export const useAudioData = (
   fileName: string,
-  yooooowStopPlayingWhileImDeveloping = false
+  // never set pause initially to true
+  paused = false
 ) => {
   const [frequencyData, setFrequencyData] = useState<number[]>([]);
 
@@ -28,7 +29,14 @@ export const useAudioData = (
   });
 
   useEffect(() => {
-    if (!analyzer && !yooooowStopPlayingWhileImDeveloping) {
+    if (audioCtx) {
+      audioCtx[paused ? "suspend" : "resume"]();
+      // paused? audioCtx.suspend() : audioCtx.resume();
+    }
+  }, [paused]);
+
+  useEffect(() => {
+    if (!analyzer) {
       audioCtx?.close();
       audioCtx = new AudioContext();
       const audioElm = new Audio();
@@ -50,16 +58,16 @@ export const useAudioData = (
     }
   }, []);
 
-  const audioVars = useMemo(() => {
-    const getRange = (a: number, b: number) =>
-      Math.round(
-        frequencyData.slice(a, b).reduce((i, t) => t + i, 0) / (a + b)
-      );
+  const audioVars = { low: [] };
+  // const audioVars = useMemo(() => {
+  //   const getRange = (a: number, b: number) =>
+  //     Math.round(frequencyData.slice(a, b).reduce((i, t) => t + i, 0) / 200);
 
-    return {
-      low: getRange(0, FREQUENCY_DIVISIONS * 0.1),
-    };
-  }, [frequencyData]);
+  //   return {
+  //     low: getRange(0, FREQUENCY_DIVISIONS * 0.1),
+  //     med: getRange(FREQUENCY_DIVISIONS * 0.2, FREQUENCY_DIVISIONS * 0.5),
+  //   };
+  // }, [frequencyData]);
 
   return { audioCtx, frequencyData, analyzer, audioVars };
 };
