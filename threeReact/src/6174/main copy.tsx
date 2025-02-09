@@ -8,11 +8,9 @@ import {
   Matrix4,
   Camera,
   Color,
-  Vector3,
 } from "three";
 
-const all = [] as { iterations: number; value: number }[];
-
+const all = [] as { count: number; value: number }[];
 const getNext = (n: number) => {
   let current = n;
   let g = 0;
@@ -29,18 +27,13 @@ const getNext = (n: number) => {
     current = high - low;
     g++;
 
-    if (g > 7) {
-      // will be nums like 1111
-      all.push({
-        iterations: -1,
-        value: n,
-      });
+    if (g > 150) {
       return -1;
     }
   }
 
   all.push({
-    iterations: g,
+    count: g,
     value: n,
   });
 };
@@ -64,27 +57,21 @@ export default function Main() {
   const meshRef = useRef<InstancedMesh<BufferGeometry> | any>();
   const updateMesh = useCallback(() => {
     if (meshRef.current) {
-      const nextLine = 100;
+      const nextLine = Math.floor(100 * Math.PI);
       let nextLines = 0;
-      all.forEach(({ value, iterations }, i) => {
+      all.forEach(({ value, count }, i) => {
         if (i % nextLine === 0) {
           nextLines++;
         }
         const x = i % nextLine;
-        const y = nextLines * 1;
+        const y = count - nextLines * 8;
         const z = 1;
 
-        const hslCol = Math.round((360 / 7) * iterations);
-
-        meshRef.current.setColorAt(
-          i,
-          new Color(`hsl(${hslCol}, ${iterations === -1 ? 0 : "80%"}, 50%)`)
-        );
         meshRef.current.setMatrixAt(i, matrix.makeTranslation(x, y, z));
       });
 
       meshRef.current.instanceMatrix.needsUpdate = true;
-      meshRef.current.instanceColor.needsUpdate = true;
+      //   meshRef.current.instanceColor.needsUpdate = true;
     }
   }, [meshRef.current]);
 
