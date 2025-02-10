@@ -11,86 +11,69 @@ import {
   Vector3,
 } from "three";
 
-const all = [] as { iterations: number; value: number }[];
-
-const getNext = (n: number) => {
-  let current = n;
-  let g = 0;
-  while (current !== 6174) {
-    const arr = String(current).split("").map(Number);
-    const high = Number(
-      arr
-        .slice()
-        .sort((a, b) => b - a)
-        .join("")
-    );
-    const low = Number(arr.slice().sort().join(""));
-
-    current = high - low;
-    g++;
-
-    if (g > 7) {
-      // will be nums like 1111
-      all.push({
-        iterations: -1,
-        value: n,
-      });
-      return -1;
-    }
-  }
-
-  all.push({
-    iterations: g,
-    value: n,
-  });
-};
-
-for (let i = 0; i < 10000; i++) {
-  const n = 1000 + i;
-  if (String(n).length === 4) {
-    getNext(n);
-  }
-}
-
-const totalNrPoints = all.length;
+const totalNrPoints = 50000;
 
 const instanceArgs = [new BoxGeometry(1, 1, 1), undefined, totalNrPoints];
 const matrix = new Matrix4();
-
-// @ts-ignore
-window.all = all;
-
+const nextLine = 250;
+let frames = 0;
+const arrFromTo = (from: number, to: number) => {
+  const res: number[] = [];
+  for (let i = from; i < to + 1; i++) {
+    res.push(i);
+  }
+  return res;
+};
 export default function Main() {
   const meshRef = useRef<InstancedMesh<BufferGeometry> | any>();
   const updateMesh = useCallback(() => {
     if (meshRef.current) {
-      const nextLine = 100;
       let nextLines = 0;
-      all.forEach(({ value, iterations }, i) => {
+      for (let i = 0; i < totalNrPoints; i++) {
         if (i % nextLine === 0) {
           nextLines++;
         }
+        // const c = (i % 3) * Math.sin((i % 5) + frames);
+        // const c = (i % 15) * (i % 30) * (i % 70) + frames * 10;
+
+        // const ri = (100 / totalNrPoints) * i;
+        // const c = (ri % 15) * (ri % 30) * (ri % 70) + frames * 10;
+
+        // const c =
+        //   // (ri % 15) *
+        //   // (ri % 16) *
+        //   // (ri % 17) *
+        //   // (ri % 18) *
+        //   (ri % 19) * (ri % 20) * (ri % 21) * (ri % 22) * (ri % 23) +
+        //   frames * 10;
+
+        const ri = (100 / totalNrPoints) * (i + 10000);
+        let c = 1;
+        const carr = arrFromTo(19, 23);
+        for (const n of carr) {
+          c *= ri % n;
+        }
+        c += frames * 10;
+
         const x = i % nextLine;
-        const y = nextLines * 1;
+        const y = nextLines;
         const z = 1;
 
-        const hslCol = Math.round((360 / 7) * iterations);
+        const hslCol = c % 360;
 
-        meshRef.current.setColorAt(
-          i,
-          new Color(`hsl(${hslCol}, ${iterations === -1 ? 0 : "80%"}, 50%)`)
-        );
+        meshRef.current.setColorAt(i, new Color(`hsl(${hslCol},80%, 50%)`));
         meshRef.current.setMatrixAt(i, matrix.makeTranslation(x, y, z));
-      });
+      }
 
       meshRef.current.instanceMatrix.needsUpdate = true;
       meshRef.current.instanceColor.needsUpdate = true;
     }
   }, [meshRef.current]);
 
-  //   useFrame(({ camera, clock }) => {
-  //     requestAnimationFrame(updateMesh);
-  //   });
+  useFrame(({ camera, clock }) => {
+    frames += 0.1;
+    requestAnimationFrame(updateMesh);
+  });
 
   useEffect(() => {
     updateMesh();
