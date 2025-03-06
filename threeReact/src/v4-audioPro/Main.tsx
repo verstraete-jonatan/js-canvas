@@ -13,7 +13,7 @@ import { useControls } from "leva";
 import { bufferSize, useAudioData } from "./useAudioData";
 
 const totalNrPoints = 50000;
-const radius = 200;
+const radius = 100;
 
 const instanceArgs = [new BoxGeometry(1, 1, 1), undefined, totalNrPoints];
 const matrix = new Matrix4();
@@ -62,43 +62,44 @@ const Main = () => {
 
   const { skew, spreadY, spreadX, dotsDistance, musicEffect } =
     useControls(controls);
-  const { frequencyData } = useAudioData("waves", paused.current);
+  const { frequencyData } = useAudioData("buka-slow.flac", paused.current);
 
   const animate = useCallback(
     (i: number) => {
       const relI = Math.round((bufferSize / totalNrPoints) * i); // i % (frequencyData.length - 1)
-      // const audioVal = frequencyData[relI] * musicEffect + og;
+      const audioVal = frequencyData[relI] * musicEffect + og;
 
-      const audioVal =
-        frequencyData[i % (frequencyData.length - 1)] * musicEffect + og;
+      // const audioVal =
+      //   frequencyData[i % (frequencyData.length - 1)] * musicEffect + og;
       // const frequency =
       //   i * tan((i + og) / totalNrPoints) * 1000 * musicEffect + og;
 
       const phi = acos(1 - (2 * (i + 0.5)) / totalNrPoints) + audioVal;
       const theta = (goldenPi2 * i) / dotsDistance;
 
-      let x = radius * sin(phi) * cos(theta);
-      let y = radius * cos(phi);
-      let z = radius * sin(phi) * sin(theta);
+      let x = radius * (cos(phi) + (sin(theta) / cos(phi)) * sin(theta));
+      let y = radius * (sin(phi) - cos(theta) + sin(phi) / cos(theta));
+      let z = radius * (cos(phi) * sin(theta) - cos(phi) + sin(theta));
 
       const _x = x;
       const _y = y;
       const _z = z;
 
+      const ri = i / totalNrPoints;
       y *=
         sinh(((_y + 1) * skew) / totalNrPoints) -
-        sin((i / totalNrPoints) * spreadY) +
-        cos((i / totalNrPoints) * spreadY);
+        sin(ri * spreadY) +
+        cos(ri * spreadY);
 
       x *=
-        sinh(((_x + 1) * skew) / totalNrPoints) -
-        sin((i / totalNrPoints) * spreadX) +
-        cos((i / totalNrPoints) * spreadX);
+        sinh(((_z + 1) * skew) / totalNrPoints) -
+        sin(ri * spreadX) +
+        cos(ri * spreadX);
 
       z *=
-        sinh(((_z + 1) * skew) / totalNrPoints) -
-        sin((i / totalNrPoints) * spreadX) +
-        cos((i / totalNrPoints) * spreadY);
+        sinh(((_x + 1) * skew) / totalNrPoints) -
+        sin(ri * spreadX) +
+        cos(ri * spreadY);
 
       // const hslCol = Math.abs(Math.sin(_x / _y / _z / og)) * 360
       const hslCol = Math.round((360 / totalNrPoints) * i);

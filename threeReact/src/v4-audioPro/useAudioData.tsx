@@ -11,8 +11,20 @@ let analyzer: AnalyserNode | null,
   dataArray: Float32Array,
   audioCtx: AudioContext | null;
 
+type FileNames =
+  | "andrez"
+  | "blaze"
+  | "buka-slow"
+  | "eagle"
+  | "phase50"
+  | "phase500"
+  | "phonk"
+  | "sketch7"
+  | "track13"
+  | "waves";
+
 export const useAudioData = (
-  fileName: string,
+  fileName: FileNames | `${FileNames}.${"mp3" | "flac"}`,
   // never set pause initially to true
   paused = false
 ) => {
@@ -40,7 +52,9 @@ export const useAudioData = (
       audioCtx?.close();
       audioCtx = new AudioContext();
       const audioElm = new Audio();
-      audioElm.src = `./${fileName}.mp3`;
+      audioElm.src = fileName.includes(".")
+        ? `./${fileName}`
+        : `./${fileName}.mp3`;
       audioElm.autoplay = true;
       audioElm.preload = "auto";
       const audioSourceNode = audioCtx.createMediaElementSource(audioElm);

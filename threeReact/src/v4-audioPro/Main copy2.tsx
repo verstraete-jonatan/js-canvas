@@ -30,13 +30,13 @@ const controls = {
     step: 0.1,
   },
   spreadY: {
-    value: 25,
+    value: 0,
     min: 0,
     max: 50,
     step: 0.1,
   },
   spreadX: {
-    value: 40,
+    value: 0,
     min: 0,
     max: 50,
     step: 0.1,
@@ -48,23 +48,26 @@ const controls = {
     step: 1,
   },
   musicEffect: {
-    value: 0.015,
+    value: 0.001,
     min: 0,
-    max: 1,
-    step: 0.001,
+    max: 0.1,
+    step: 0.0001,
   },
 };
 
 const Main = () => {
-  const meshRef = useRef<InstancedMesh<BufferGeometry> | any>();
+  const meshRef = useRef<InstancedMesh<BufferGeometry>>();
   const paused = useRef(false);
+  // const stored = useRef<Record<number, [number, number, number]>>({});
+  const stored = useRef<Record<number, number>>({});
 
   const { skew, spreadY, spreadX, dotsDistance, musicEffect } =
     useControls(controls);
-  const { frequencyData } = useAudioData("eagle", false);
+  const { frequencyData } = useAudioData("waves", false);
 
   const animate = useCallback(
     (i: number) => {
+      if (!meshRef.current) return;
       const audioVal =
         frequencyData[i % (frequencyData.length - 1)] * musicEffect + og;
 
@@ -81,21 +84,28 @@ const Main = () => {
       let y = radius * cos(phi);
       let z = radius * sin(phi) * sin(theta);
 
+      if (stored.current[i]) {
+        const s = tan(stored.current[i] + og + i);
+        x /= sin(s);
+        y /= cos(s);
+        z /= sin(s);
+      }
+
       const _x = x;
       const _y = y;
       const _z = z;
 
-      y *=
+      y /=
         sinh(((_y + 1) * skew) / totalNrPoints) -
         sin((i / totalNrPoints) * spreadY) +
         cos((i / totalNrPoints) * spreadY);
 
-      x *=
+      x /=
         sinh(((_x + 1) * skew) / totalNrPoints) -
         sin((i / totalNrPoints) * spreadX) +
         cos((i / totalNrPoints) * spreadX);
 
-      z *=
+      z /=
         sinh(((_z + 1) * skew) / totalNrPoints) -
         sin((i / totalNrPoints) * spreadX) +
         cos((i / totalNrPoints) * spreadY);
@@ -107,6 +117,7 @@ const Main = () => {
 
       matrix.makeTranslation(x, y, z);
       meshRef.current.setMatrixAt(i, matrix);
+      stored.current[i] = audioVal;
     },
     [
       skew,
@@ -169,38 +180,8 @@ const Main = () => {
     requestAnimationFrame(updateMesh);
   });
 
-  useEffect(() => {
-    const ev = ({ key }: KeyboardEvent) => {
-      if (key === " ") {
-        paused.current = !paused.current;
-        console.log({
-          skew,
-          spreadY,
-          spreadX,
-          dotsDistance,
-          musicEffect,
-          camera: (window as any).camera,
-        });
-      }
-    };
-    addEventListener("keydown", ev);
-    return () => removeEventListener("keydown", ev);
-  }, [
-    paused.current,
-    skew,
-    spreadY,
-    spreadX,
-    dotsDistance,
-    musicEffect,
-    skew,
-    spreadY,
-    spreadX,
-    dotsDistance,
-    musicEffect,
-  ]);
-
   return (
-    <instancedMesh ref={meshRef} args={instanceArgs as any}>
+    <instancedMesh ref={meshRef as any} args={instanceArgs as any}>
       <meshStandardMaterial />
     </instancedMesh>
   );

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Box, OrbitControls, Sphere } from "@react-three/drei";
 
-// import Main from "./Main copy2";
-import Main from "./Main";
+import Main from "./Main copy2";
+// import Main from "./Main";
 // import Main from "./MainTestAudio";
 
 export default () => (
