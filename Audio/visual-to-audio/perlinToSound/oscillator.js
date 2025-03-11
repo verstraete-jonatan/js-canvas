@@ -18,14 +18,14 @@ let noteLength = 0.1;
 let vibratoSpeed = 1;
 let vibratoAmount = 100;
 
-const delay = actx.createDelay();
-const feedback = actx.createGain();
-const delayAmountGain = actx.createGain();
+// const delay = actx.createDelay(500);
+// const feedback = actx.createGain();
+// const delayAmountGain = actx.createGain();
 
-// delayAmountGain.connect(delay)
-// delay.connect(feedback)
-// feedback.connect(delay)
-// delay.connect(gainNode)
+// delayAmountGain.connect(delay);
+// delay.connect(feedback);
+// feedback.connect(delay);
+// delay.connect(gainNode);
 
 // delay.delayTime.value = 0.5;
 // delayAmountGain.gain.value = 0.5;

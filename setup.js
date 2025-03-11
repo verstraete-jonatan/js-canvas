@@ -1901,42 +1901,42 @@ const Events = {
 window.onload = () => {
   try {
     // init events
-    defaultEvents &&
-      setTimeout(() => {
-        if (defaultEvents) {
-          Events.setKeys([
-            [" ", () => (pause = !pause)],
-            ["f", () => toggleFullscreen()],
-            ["r", () => window.location.reload()],
-          ]);
 
-          Events.addClick("#btn_download", () => {
-            const l = document.createElement("a");
-            l.download = "canvas_img.png";
-            l.href = cnv.toDataURL();
-            l.click();
-            l.delete;
-          });
-          Controls.addInfo(
-            "Events: " +
-              [...Events.keyEvents.keys()]
-                .map((i) => i.split(Events.seperator)[0])
-                .join(", ")
-          );
-          Events.listen();
-          setWindowLocation();
-        }
-        window.addEventListener("keydown", (ev) => {
-          // ev.preventDefault();
-          const ek = ev.key;
-          Events.keyEvents.forEach((v, k) => {
-            const s = k.split(Events.seperator)[0];
-            if (ek === s) {
-              v();
-            }
-          });
+    setTimeout(() => {
+      if (defaultEvents) {
+        Events.setKeys([
+          [" ", () => (pause = !pause)],
+          ["f", () => toggleFullscreen()],
+          ["r", () => window.location.reload()],
+        ]);
+
+        Events.addClick("#btn_download", () => {
+          const l = document.createElement("a");
+          l.download = "canvas_img.png";
+          l.href = cnv.toDataURL();
+          l.click();
+          l.delete;
         });
-      }, 200);
+        Controls.addInfo(
+          "Events: " +
+            [...Events.keyEvents.keys()]
+              .map((i) => i.split(Events.seperator)[0])
+              .join(", ")
+        );
+        Events.listen();
+        setWindowLocation();
+      }
+      window.addEventListener("keydown", (ev) => {
+        // ev.preventDefault();
+        const ek = ev.key;
+        Events.keyEvents.forEach((v, k) => {
+          const s = k.split(Events.seperator)[0];
+          if (ek === s) {
+            v();
+          }
+        });
+      });
+    }, 500);
   } catch (e) {
     textCenter("LOAD Error: " + e.message);
     log(e);

@@ -1,5 +1,12 @@
+pause = true;
+
+window.addEventListener("keydown", (ev) => {
+  if (ev.key === " ") {
+    pause = !pause;
+  }
+});
+
 const main = async () => {
-  pause = true;
   await pauseHalt();
 
   const synth = new Tone.Synth().toDestination();

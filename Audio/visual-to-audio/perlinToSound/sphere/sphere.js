@@ -1,6 +1,6 @@
-cnv.addEventListener("mouseover", function (e) {
-  reqanim = window.requestAnimationFrame(animate);
-});
+// cnv.addEventListener("mouseover", function (e) {
+//   reqanim = window.requestAnimationFrame(animate);
+// });
 
 cnv.addEventListener("mouseout", function (e) {
   window.cancelAnimationFrame(reqanim);
@@ -105,7 +105,9 @@ const edges = vertices.map((i, idx, arr) => [
   overCount(idx - 1, arr.length - 1),
 ]);
 
-const getLister = (idx = 50) => floor(mapNum(idx, 0, 100, 0, edges.length));
-const listerners = [getLister(51.1), getLister(51.3), getLister(51.4)];
+// const getLister = (idx = 50) => floor(mapNum(idx, 0, 100, 0, setup.amount));
+
+// const listerners = [getLister(51.1), getLister(51.3), getLister(51.4)];
+const listerners = [4, 8, 16, 32, 64, 128];
 
 draw();
