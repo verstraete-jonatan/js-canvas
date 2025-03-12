@@ -1,9 +1,16 @@
 let zoff = 0;
-const df = 1000;
-const noiseScale = 100;
+const df = 2000;
+const noiseScale = 50;
 
 function getNoise(x, y) {
-  return ((0.5 + noise.simplex3(x / df, y / df, zoff)) * noiseScale) / 2;
+  const n = ((0.5 + noise.simplex3(x / df, y / df, zoff)) * noiseScale) / 2;
+
+  // return n;
+  return smoothSquareWave(n, 1) * Math.tan(zoff) * 100;
+
+  return smoothSquareWave(n, 1) * smoothSquareWave(n, 0.6) * 50;
+
+  // return ((0.5 + noise.simplex3(x / df, y / df, zoff)) * noiseScale) / 2;
 }
 
 const points = [];
@@ -25,12 +32,20 @@ const displayPlay = (i, n) => {
 };
 
 const getLister = (idx = 50) => floor(mapNum(idx, 0, 100, 0, points.length));
-const listerners = [
-  getLister(51.1),
-  getLister(51.3),
-  getLister(51.4),
-  getLister(52.4),
+const getLister2 = (i = 1) => floor(i * points.length);
+
+let listeners = [
+  // getLister(51.1),
+  getLister2(0.01),
+  getLister2(0.6),
+  // getLister(52.4),
 ];
+
+// listeners = range(points.length)
+//   .map((i) => (i % 100 === 0 ? i : null))
+//   .filter(Boolean);
+
+listeners = range(points.length).filter((i) => i % 50 === 0);
 
 const main = () => {
   async function animate() {
@@ -45,7 +60,7 @@ const main = () => {
       line(i[0], i[1], i[0] + n, i[1] + n, "#000");
     }
 
-    for (let idx of listerners) {
+    for (let idx of listeners) {
       const i = points[idx];
       const n = getNoise(i[0], i[1]);
       displayPlay(i, n);

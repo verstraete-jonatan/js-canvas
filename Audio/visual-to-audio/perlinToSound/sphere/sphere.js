@@ -80,7 +80,7 @@ function draw() {
       }
       ctx.closePath();
       ctx.stroke();
-      for (let idx of listerners) {
+      for (let idx of listeners) {
         const i = vertices[edges[idx][0]];
 
         const n = getNoise(i.x, i.y);
@@ -107,7 +107,16 @@ const edges = vertices.map((i, idx, arr) => [
 
 // const getLister = (idx = 50) => floor(mapNum(idx, 0, 100, 0, setup.amount));
 
-// const listerners = [getLister(51.1), getLister(51.3), getLister(51.4)];
-const listerners = [4, 8, 16, 32, 64, 128];
+// const listeners = [getLister(51.1), getLister(51.3), getLister(51.4)];
+const listeners = [500, 1000];
 
-draw();
+textCenter("Click to start");
+let ev;
+ev = document.body.addEventListener(
+  "click",
+  () => {
+    draw();
+    document.removeEventListener("click", ev);
+  },
+  true
+);

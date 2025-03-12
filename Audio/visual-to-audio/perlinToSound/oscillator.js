@@ -9,25 +9,27 @@ gainNode.gain.value = 0.05;
 let waveform = "sine";
 
 // Envelope
-let attackTime = 0.3;
+let attackTime = 0.8;
 let sustainLevel = 0.4;
-let releaseTime = 0.3;
-let noteLength = 0.1;
+let releaseTime = 0.8;
+let noteLength = 0.3;
 
 // Vibrato
 let vibratoSpeed = 1;
 let vibratoAmount = 100;
 
-// const delay = actx.createDelay(500);
+// var delay = actx.createDelay(1000);
+// delay.connect(actx.createGain());
+
 // const feedback = actx.createGain();
 // const delayAmountGain = actx.createGain();
 
+// osc
 // delayAmountGain.connect(delay);
-// delay.connect(feedback);
 // feedback.connect(delay);
 // delay.connect(gainNode);
 
-// delay.delayTime.value = 0.5;
+// delay.delayTime.value = 5.5;
 // delayAmountGain.gain.value = 0.5;
 // feedback.gain.value = 0;
 
@@ -39,6 +41,7 @@ function playValue(value, x = Xmid, y = Ymid, z = 300) {
 
   const osc = actx.createOscillator();
   const noteGain = actx.createGain();
+
   noteGain.gain.setValueAtTime(0, 0);
   noteGain.gain.linearRampToValueAtTime(
     sustainLevel,
@@ -60,12 +63,15 @@ function playValue(value, x = Xmid, y = Ymid, z = 300) {
   //   lfo.start(0);
   //   lfo.stop(actx.currentTime + noteLength);
   //   lfo.connect(lfoGain);
-  osc.type = "sawtooth"; // ["sawtooth", "sine", "square", "triangle"][randint(0, 3)];
+  osc.type = "square"; // ["sawtooth", "sine", "square", "triangle"][randint(0, 3)];
 
   osc.frequency.setValueAtTime(value, 0);
   osc.start(0);
   osc.stop(actx.currentTime + noteLength);
   osc.connect(noteGain);
+
+  //   osc.connect(delay);
+  //   delay.connect(gainNode);
 
   noteGain.connect(gainNode); //.connect(compressor)
   // noteGain.connect(delay);
