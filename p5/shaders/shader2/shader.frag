@@ -25,8 +25,7 @@ float noise( vec3 x) {
 	vec3 p = floor(x);
 	vec3 f = fract(x);
 	f = f*f*(3.0-2.0*f);
-	// float n = p.x + p.y*57.0 + 113.0*p.z - sin(1.0 + aaaarch/1.0);
-	float n =   p.x + p.y*57.0 + 113.0*p.z; //- sin(1.0 + aaaarch/1.0);
+	float n = p.x + p.y*57.0 + 113.0*p.z; //- sin(1.0 + aaaarch/1.0);
 
 	return mix(
 			mix(
@@ -72,7 +71,7 @@ void main() {
 
 	float brightness = 0.3; 
 	float contrast = 0.15 
-	//- (fract(frame / 100.0))
+	// - (fract(frame / 100.0))
 	;
 
 
@@ -113,7 +112,7 @@ void main() {
 	col.b *=  brightness;
 
 	// col.r *= sin(hue) * brightness;
-	// col.g *= -sin(hue) * brightness *  0.1;
+	// col.g *= -sin(hue) * brightness;
 	// col.b *= cos(hue) * brightness;
 
 	// col.b = col.g;

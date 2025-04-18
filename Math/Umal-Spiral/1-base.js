@@ -17,7 +17,7 @@ let posY = 0;
 const dd = (x, y, idx) => rect(x, y, x + scale, y + scale, null, getColor(idx));
 
 const getColor = (n) => {
-  return "black";
+  // return "black";
   return hsl(rootSum(n) * 36);
 };
 
@@ -41,26 +41,29 @@ function isPrime(num) {
   }
   return num != 1;
 }
-const primes = new Set();
+const primes = new Map();
 function drawNeighbours(dim = 1) {
   let idx = dim * dim;
   for (let row = -dim; row <= dim; row++) {
     for (let col = -dim; col <= dim; col++) {
       if (abs(col) === dim || abs(row) === dim) {
         if (!primes.has(idx) && isPrime(idx)) {
-          primes.add(idx);
-          dd(Xmid + col * scale, Ymid + row * scale, idx);
+          primes.set(idx, [Xmid + col * scale, Ymid + row * scale, idx]);
         }
       }
       idx += 1;
     }
+  }
+
+  for (const i of [...primes.values()]) {
+    dd(...i);
   }
 }
 
 let current = 0;
 let prev = performance.now();
 const animate = async () => {
-  for (let i of range(1000)) {
+  for (let i of range(1)) {
     await pauseHalt();
     requestAnimationFrame(() => drawNeighbours(i));
   }

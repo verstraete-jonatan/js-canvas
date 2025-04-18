@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2D-main</title>
+    <title>Perlin noise 2</title>
   </head>
   <body>
     <style>
@@ -23,8 +23,8 @@
       canvas {
         background: #fff;
         display: block;
-        filter: invert(1);
       }
+
       .centered {
         width: 100vw;
         height: 100vh;
@@ -33,14 +33,14 @@
         align-items: center;
       }
     </style>
+    <button id="btn_download">download image</button>
     <div class="centered">
       <canvas id="canvas_01" width="1200" height="900"></canvas>
     </div>
 
     <script src="../../setup.js"></script>
-    <script src="4.2.js"></script>
-    <!-- <script src="./simulations/simulating_inShapes.js"></script> -->
-
-    <!-- <script src="4-current.js"></script> -->
+    <script src="../../libs/perlin.js"></script>
+    <script src="./particle.js"></script>
+    <script src="./2.1.js"></script>
   </body>
 </html>

@@ -1,5 +1,6 @@
 let blocks = [];
 let noiseOff = 0;
+let pause = false;
 
 const noiseSize = 2000;
 const noiseEffect = 0.5;
